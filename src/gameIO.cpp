@@ -1,6 +1,6 @@
 
 //=============================================================================
-// myGame.cpp 
+// gameIO.cpp 
 //
 //Author: Doron Nussbaum (C) 2011 All Rights Reserved.
 //-----------------------------------------------------
@@ -380,7 +380,7 @@ Return:
 
 
 
-int gameIO::keyboardPressed(char key)
+int gameIO::keyboardPressed(unsigned char key)
 {
 	return(mKeyboardState[key] & 0x80);
 }

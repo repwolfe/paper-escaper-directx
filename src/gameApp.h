@@ -12,6 +12,10 @@
 // c. demonstrates how to initialize direct3D
 // d. provide a framework for creating games
 // e. demonstrates how to create an egnine frame and provide a skeleton function of one.
+// f. demonstarte the usage of a camera
+// g. demonstrates the creation of a surface and of vertex and index buffers
+// h. demonstartes how to set the differnt matrices. 
+//
 //
 // Description:
 //--------------
@@ -24,7 +28,7 @@
 //
 // Code can be used for instructional and educational purposes and for assignments in the gaming courses at 
 // the School of Compuer Science at Carleton University.
-// Usage of code for other purposes is not allowed with a given permission by the author.
+// Usage of code for other purposes is not allowed without a given permission by the author.
 //
 //
 // Disclaimer
@@ -44,6 +48,7 @@
 #include <d3dx9.h>
 //#include <dxerr9.h>
 #include "gameio.h"
+#include "gameObject.h"
 
 
 // DEFINES
@@ -56,14 +61,16 @@ class gameApp
 {
 //FUNCTIONS
 public:
-	gameApp(void);
+	//gameApp(void);
 	~gameApp(void);
 	gameApp(HINSTANCE hInstance, char* gameName);
 	
 	virtual int updateGameState(long time);  // update the game state
-	virtual int renderFrame(long time);		// redner the frame
+	virtual int renderFrame(int time);		// redner the frame
 	virtual int gameLoop(void);					// start the game loop
 	virtual int initGame(void);				// initialize the game
+	D3DMATRIX * getProjMat(D3DXMATRIX * matProj);
+	void setProj(float nearPlane, float farPlane, float fieldOfView, float aspectRatio);
 
 
 private:
@@ -91,6 +98,13 @@ protected:
 	IDirect3D9 *md3d;		// com object of directx 9;
 	IDirect3DDevice9 *md3dDev;		//direct3D device;
 	D3DPRESENT_PARAMETERS md3dpp;  // presentation parameters
+
+	// projection
+	D3DXMATRIX matProj;
+	float nearPlane;
+	float farPlane;
+	float fieldOfView;
+	float aspectRatio;
 
 	
 	gameIO *mInput;

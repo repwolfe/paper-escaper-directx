@@ -1,6 +1,6 @@
 
 //=============================================================================
-// gameIO.cpp 
+// gameApp.cpp 
 //
 //Author: Doron Nussbaum (C) 2011 All Rights Reserved.
 //-----------------------------------------------------
@@ -12,10 +12,13 @@
 // c. demonstrates how to initialize direct3D
 // d. provide a framework for creating games
 // e. demonstrates how to create an egnine frame and provide a skeleton function of one.
+// f. demonstarte the usage of a camera
+// g. demonstrates the creation of a surface and of vertex and index buffers
+// h. demonstartes how to set the differnt matrices. 
 //
 // Description:
 //--------------
-// A simple application that demonstrates how to use directx to draw a font on the screen.
+// A simple application that demonstrates how to use directx to surface and how to use the camea.  
 // It uses a framework for a general purpose simple game engine
 //
 //
@@ -24,7 +27,7 @@
 //
 // Code can be used for instructional and educational purposes and for assignments in the gaming courses at 
 // the School of Compuer Science at Carleton University.
-// Usage of code for other purposes is not allowed with a given permission by the author.
+// Usage of code for other purposes is not allowed without a given permission by the author.
 //
 //
 // Disclaimer
@@ -86,6 +89,7 @@ LRESULT CALLBACK globalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			// Handle any messages the switch statement didn't
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
+	return rc;
 }
 
 
@@ -139,6 +143,7 @@ gameApp::gameApp(HINSTANCE hInstance, char * gameName) :
   mFullScreen(0), 
   mWndWidth(0), 
   mWndHeight(0)
+  ,nearPlane(0), farPlane(0),md3d(NULL)
 {
 	this->mhinstance = hInstance;
 	mFullScreen = false;
@@ -233,7 +238,7 @@ int gameApp::initWindow(void)
 	}
 
 	rc = 0;  
-	mhwnd = CreateWindow(winClass, mGameName, WS_OVERLAPPEDWINDOW, 50, 50, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, mhinstance, NULL);
+	mhwnd = CreateWindow(winClass, mGameName, WS_OVERLAPPEDWINDOW, 10, 10, this->mWndWidth, this->mWndHeight, NULL, NULL, mhinstance, NULL);
 
    if (mhwnd == NULL) {
 	   rc = GetLastError();
@@ -265,7 +270,7 @@ int gameApp::initD3D(void)
 	int rc = 0;;
 
 	// get the com object if it does not exist 
-	if (md3d != NULL) {// check if the com object was already initialized
+	if (md3d == NULL) {// check if the com object was already initialized
 		// initialize the com object
 		md3d = Direct3DCreate9(D3D_SDK_VERSION);
 		if (md3d == NULL) {
@@ -281,8 +286,8 @@ int gameApp::initD3D(void)
 	md3dpp.Windowed = !mFullScreen;				// using windowed version
 	md3dpp.hDeviceWindow = mhwnd;				// pass the handle to the window
 	md3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;    // discard old frames
-	md3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	md3dpp.EnableAutoDepthStencil = TRUE;		// allow depth buffer
+	//md3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	//md3dpp.EnableAutoDepthStencil = TRUE;		// allow depth buffer
 	md3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;  // stencil buffer format
 
 
@@ -297,12 +302,19 @@ int gameApp::initD3D(void)
 							 &md3dpp,				// address of the d3d parameters structures 
 							 &md3dDev);				// address of the allocated device
 
+	// Turn off culling, so we see the front and back of the triangle
+	md3dDev->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
+	// Turn off D3D lighting, since we are providing our own vertex colors
+	md3dDev->SetRenderState( D3DRS_LIGHTING, FALSE );
+
+
 	if (rc != S_OK) {
 		// release d3d (the com object
 		md3d->Release();
 		md3d = NULL;
 		rc = 1;
 	}
+	GameObject::setd3dDev(md3dDev);
 	return(0);
 }
 /******************************************************************/
@@ -346,8 +358,8 @@ Return:
 int gameApp::gameLoop(void)
 {
 	int rc = 0;
-    // this struct holds Windows event messages
-    MSG msg;    // this struct holds Windows event messages
+	// this struct holds Windows event messages
+	MSG msg;    // this struct holds Windows event messages
 
 	// variables for measuring the time
 	static DWORD LastRenderTime = GetTickCount();
@@ -357,22 +369,22 @@ int gameApp::gameLoop(void)
 
 	static long time = 0;		// "time" of the game - number of frames since the begining of the game
 
-    // Enter the infinite message loop
-    while(TRUE)
-    {
-        // Check to see if any messages are waiting in the queue
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            // If the message is WM_QUIT, exit the while loop
-            if (msg.message == WM_QUIT)
-                break;
+	// Enter the infinite message loop
+	while(TRUE)
+	{
+		// Check to see if any messages are waiting in the queue
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			// If the message is WM_QUIT, exit the while loop
+			if (msg.message == WM_QUIT)
+				break;
 
-            // translate keystroke messages into the right format
-            TranslateMessage(&msg);
+			// translate keystroke messages into the right format
+			TranslateMessage(&msg);
 
-            // send the message to the WindowProc function
-            DispatchMessage(&msg);
-        }
+			// send the message to the WindowProc function
+			DispatchMessage(&msg);
+		}
 
 		// update the game state
 		// note that this is done via a virtual function
@@ -386,7 +398,7 @@ int gameApp::gameLoop(void)
 		// note that this is done via a virtual function
 		renderFrame(time);
 		time++;
-        
+		
 
 		// determine whether to sleep 
 		CurrentTime = GetTickCount();
@@ -397,10 +409,10 @@ int gameApp::gameLoop(void)
 		}
 		LastRenderTime = GetTickCount();
 
-    }
+	}
 
-    // return this part of the WM_QUIT message to Windows
-    return msg.wParam;	
+	// return this part of the WM_QUIT message to Windows
+	return msg.wParam;	
 	return 0;
 }
 
@@ -439,7 +451,7 @@ Return:
 
 
 
-int gameApp::renderFrame(long time)
+int gameApp::renderFrame(int time)
 {
 	return 0;
 }
@@ -490,4 +502,24 @@ the window height
 int gameApp::getWndHeight(void)
 {
 	return (this->mWndHeight);
+}
+
+
+
+
+D3DMATRIX * gameApp::getProjMat(D3DXMATRIX * matProj)
+{
+	return(D3DXMatrixPerspectiveFovLH(matProj,fieldOfView, aspectRatio, nearPlane, farPlane));
+}
+
+
+
+
+void gameApp::setProj(float nearPlane, float farPlane, float fieldOfView, float aspectRatio)
+
+{
+	this->nearPlane = nearPlane;
+	this->farPlane = farPlane;
+	this->fieldOfView = fieldOfView;
+	this->aspectRatio = aspectRatio;
 }

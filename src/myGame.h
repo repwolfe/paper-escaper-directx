@@ -30,7 +30,7 @@
 //
 // Code can be used for instructional and educational purposes and for assignments in the gaming courses at 
 // the School of Compuer Science at Carleton University.
-// Usage of code for other purposes is not allowed with a given permission by the author.
+// Usage of code for other purposes is not allowed without a given permission by the author.
 //
 //
 // Disclaimer
@@ -42,6 +42,10 @@
 
 #pragma once
 #include "gameapp.h"
+#include "camera.h"
+#include "PaperSheet.h"
+#include <list>
+
 
 class myGame : public gameApp
 {
@@ -49,8 +53,12 @@ public:
 	myGame(HINSTANCE hInstance, char* gameName);
 	~myGame(void);
 	int updateGameState(long time);
-	int renderFrame(long time);
+	int renderFrame(int time);
 	int initGame(void);
+	// sets the matrices of the view points and the projection
+	virtual int setMatrices(void);
+
+	Camera cam;	
 
 	// variables used to position the text on the screen
 	int x;	// x location of the string to be drawn
@@ -63,8 +71,8 @@ public:
 	char s[1024]; // string to be drawn
 
 	 
-	LPD3DXFONT fontCourier; // font to be used
-	LPD3DXSPRITE d3dSprite;
-//	LPD3DIRECT3DTEXTURE mySprite;
+	LPD3DXFONT fontCourier; // font to be used 
 
+private:
+	std::list<PaperSheet*> sheets;
 };
