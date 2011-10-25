@@ -6,10 +6,13 @@ IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 
 PaperSheet::PaperSheet()
 {
-	this->mPosition = D3DXVECTOR3(0,0,0);
+	float zScale = 1.0f;
+	static float zloc = 0.0f;
+	this->mPosition = D3DXVECTOR3(0,0,zloc);
 	mScaleX = 20.0f;
 	mScaleY = 20.0f;
-	mScaleZ = 1.0f;
+	mScaleZ = zScale;
+	zloc += zScale;
 
 	D3DCOLOR color = D3DCOLOR_XRGB(rand() % 255, rand() % 255, rand() % 255);
 	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color);
