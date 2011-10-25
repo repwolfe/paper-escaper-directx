@@ -1,5 +1,7 @@
+Debug/
+ipch/
 *.vcxproj.filters
 *vcxproj.user
 *.sdf
+*.opensdf
 *.suo
-Debug/

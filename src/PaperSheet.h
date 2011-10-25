@@ -25,7 +25,7 @@ private:
 	paperVertex vertices[VTX_NUM];
 	long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
 
-	static IDirect3DVertexDeclaration9* cubeDecl;
+	static IDirect3DVertexDeclaration9* paperDecl;
 };
 
 #endif

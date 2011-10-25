@@ -2,15 +2,14 @@
 
 #include "PaperSheet.h"
 
-IDirect3DVertexDeclaration9* PaperSheet::cubeDecl = NULL;
+IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 
 PaperSheet::PaperSheet()
 {
-	this->mPosition = D3DXVECTOR3(float(rand() % 2000) , float((rand() % 100)), float(rand() % 2000));
-	//this->mPosition = D3DXVECTOR3(0,0,0);
-	mScaleX = float(rand() % 50);
-	mScaleY = float(rand() % 50);
-	mScaleZ = float(rand() % 50);
+	this->mPosition = D3DXVECTOR3(0,0,0);
+	mScaleX = 20.0f;
+	mScaleY = 20.0f;
+	mScaleZ = 1.0f;
 
 	D3DCOLOR color = D3DCOLOR_XRGB(rand() % 255, rand() % 255, rand() % 255);
 	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color);
@@ -56,7 +55,7 @@ int PaperSheet::initGeom() {
 	decl[0].Offset = (char *) &v.pos - (char *) &v;
 	decl[1].Offset = (char *) &v.color - (char *) &v;
 	
-	md3dDev->CreateVertexDeclaration(decl, &cubeDecl);
+	md3dDev->CreateVertexDeclaration(decl, &paperDecl);
 
 	// lock the buffer and copy the vertices (locking the entire array)		
 	mVtxBuf->Lock(0,0,(void**)&vtx, 0);
@@ -93,6 +92,7 @@ int PaperSheet::render(int time)
 	
 
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
+	md3dDev->SetVertexDeclaration(paperDecl);
 	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	md3dDev->SetIndices(mIndBuf);
 	md3dDev->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
