@@ -96,7 +96,7 @@ int PaperSheet::render(int time)
 
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
 	md3dDev->SetVertexDeclaration(paperDecl);
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	md3dDev->SetIndices(mIndBuf);
 	md3dDev->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
 	return 0;

@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameApp.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameIO.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameObject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\myGame.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PaperSheet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameApp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameIO.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameObject.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\myGame.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PaperSheet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Resource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\targetver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\small.ico" />
+    <None Include="src\textures.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{8cf912f8-d54f-4ea7-93a2-c65dd639d9c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{c5bc0d95-2546-48c2-a9c4-9e00bad7a91a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
