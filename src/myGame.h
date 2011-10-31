@@ -75,4 +75,5 @@ public:
 
 private:
 	std::list<PaperSheet*> sheets;
+	PaperSheet* previous;
 };

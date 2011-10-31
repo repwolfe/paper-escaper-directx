@@ -6,15 +6,16 @@ IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 
 PaperSheet::PaperSheet()
 {
-	float zScale = 1.0f;
-	static float zloc = 0.0f;
-	this->mPosition = D3DXVECTOR3(0,0,zloc);
+	mPitch = 90.0f;
+	this->mPosition = D3DXVECTOR3(0,0,0);
 	mScaleX = 20.0f;
 	mScaleY = 20.0f;
-	mScaleZ = zScale;
-	zloc += zScale;
+	mScaleZ = 0.5f;
 
-	D3DCOLOR color = D3DCOLOR_XRGB(rand() % 255, rand() % 255, rand() % 255);
+	rotating = false;
+	deleteMe = false;
+
+	D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255);
 	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color);
 	vertices[1] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color);
 	vertices[2] = paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color);
@@ -38,6 +39,12 @@ PaperSheet::PaperSheet()
 	indices[33] = 4; indices[34] = 3; indices[35] = 7;
 
 	initGeom();
+}
+
+PaperSheet::~PaperSheet() {
+	mVtxBuf->Release();
+	paperDecl->Release();
+	mIndBuf->Release();
 }
 
 int PaperSheet::initGeom() {
@@ -85,19 +92,54 @@ int PaperSheet::render(int time)
 {
 	D3DXMATRIX worldMat, viewMat, matTransform, matProjection, matScale, matTranslate,  matRotation;
 
+	// Scale
 	D3DXMatrixScaling(&matScale,mScaleX, mScaleY, mScaleZ);
 	worldMat = matScale;
 
+	// Translate in order to rotate at bottom
+	D3DXMatrixTranslation(&matTranslate, 0, -mScaleY, 0);
+	worldMat *= matTranslate;
+
+	// Rotation
+	float angleRad = D3DXToRadian(mPitch);
+	D3DXVECTOR3 rotVector(-1.0,0.0,0.0);
+	D3DXMatrixRotationAxis(&matRotation, &rotVector, angleRad);
+	worldMat *= matRotation;
+
+	// Translate back
+	D3DXMatrixTranslation(&matTranslate, 0, mScaleY, 0);
+	worldMat *= matTranslate;
+	
+	// Real Translation
 	D3DXMatrixTranslation(&matTranslate, mPosition.x, mPosition.y, mPosition.z);
 	worldMat *= matTranslate;
 
 	md3dDev->SetTransform(D3DTS_WORLD, &worldMat);
 	
-
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
 	md3dDev->SetVertexDeclaration(paperDecl);
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	md3dDev->SetIndices(mIndBuf);
 	md3dDev->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
 	return 0;
+}
+
+int PaperSheet::updateState() {
+	if (rotating) {
+		mPitch += 2.0f;
+		if (mPitch == 270.0f) {
+			rotating = false;
+			deleteMe = true;
+		}
+	}
+
+	return 0;
+}
+
+void PaperSheet::startRotating() {
+	rotating = true;
+}
+
+bool PaperSheet::shouldDelete() {
+	return deleteMe;
 }

@@ -51,7 +51,7 @@
 
 
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, x(0), fontCourier(NULL)
+, x(0), fontCourier(NULL), previous(NULL)
 {
 
 }
@@ -67,6 +67,8 @@ myGame::~myGame(void)
 		delete sheets.front();
 		sheets.pop_front();
 	}
+
+	delete previous;
 }
 
 
@@ -74,9 +76,6 @@ myGame::~myGame(void)
 int myGame::updateGameState(long time)
 {
 	int rc = 0;
-	// add code to update the game state
-	static int timer = 0;
-
 	// poll the input
 	mInput->poll();
 	
@@ -126,9 +125,18 @@ int myGame::updateGameState(long time)
 		}
 	}
 
-	++timer;
-	if (timer % 4 == 0) {
-		sheets.push_back(new PaperSheet());
+	std::list<PaperSheet*>::const_iterator iter = sheets.begin();
+	while (iter != sheets.end()) {
+		(*iter)->updateState();
+		++iter;
+	}
+
+	// Check if last sheet is done rotating
+	if (sheets.back()->shouldDelete()) {
+		delete previous;					// delete the previously stored sheet
+		previous = sheets.back();
+		sheets.pop_back();
+		sheets.back()->startRotating();		// start rotating the new last sheet
 	}
 
 	// move the camera
@@ -190,6 +198,10 @@ int myGame::renderFrame(int time)
 		++iter;
 	}
 
+	if (previous != NULL) {
+		previous->render(time);
+	}
+
 	md3dDev->EndScene();    // ends the 3D scene
 
 	rc = md3dDev->Present(NULL, NULL, NULL, NULL);   // displays the created frame on the screen
@@ -220,6 +232,14 @@ int myGame::initGame(void)
 	textBox.left = 0;
 	textBox.bottom = 50;
 	textBox.right = 280;
+	
+	for (int i = 0; i < 125; ++i)
+	{
+		sheets.push_back(new PaperSheet());
+	}
+
+	sheets.back()->startRotating();
+	
 
 	return 0;
 }

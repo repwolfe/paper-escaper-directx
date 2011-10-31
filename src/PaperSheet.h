@@ -17,15 +17,23 @@ class PaperSheet : GameObject
 {
 public:
 	PaperSheet();
+	~PaperSheet();
 
 	virtual int initGeom();
 	virtual int render(int time);
+	virtual int updateState();
+
+	void startRotating();
+	bool shouldDelete();
 
 private:
 	paperVertex vertices[VTX_NUM];
 	long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
 
 	static IDirect3DVertexDeclaration9* paperDecl;
+
+	bool rotating;
+	bool deleteMe;
 };
 
 #endif
