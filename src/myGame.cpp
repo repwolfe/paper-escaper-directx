@@ -136,7 +136,9 @@ int myGame::updateGameState(long time)
 		delete previous;					// delete the previously stored sheet
 		previous = sheets.back();
 		sheets.pop_back();
-		sheets.back()->startRotating();		// start rotating the new last sheet
+		if (!sheets.empty()) {
+			sheets.back()->startRotating();		// start rotating the new last sheet
+		}
 	}
 
 	// move the camera
