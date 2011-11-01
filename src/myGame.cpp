@@ -114,13 +114,13 @@ int myGame::updateGameState(long time)
 			rc = 0;
 		}
 		if (mInput->keyboardPressed(DIK_A)) {
-			//roll left
-			cam.roll(2.0f);  //CCW
+			//move left
+			cam.moveRight(5.0f); 
 			rc = 0;
 		}
 		if (mInput->keyboardPressed(DIK_D)) {
-			// roll write
-			cam.roll(-2.0f);  //CW
+			// move write
+			cam.moveRight(-5.0f); 
 			rc = 0;
 		}
 	}

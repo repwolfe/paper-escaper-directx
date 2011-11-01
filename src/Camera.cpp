@@ -85,7 +85,8 @@ Return:
 
 int Camera::roll(float angleDeg)
 {
-	float angleRad = D3DXToRadian(angleDeg);
+	//removed roll
+	/*float angleRad = D3DXToRadian(angleDeg);
 	D3DXVECTOR3 rotVector(0.0,0.0,0.0);
 
 
@@ -94,8 +95,9 @@ int Camera::roll(float angleDeg)
 
 	updateOrientation(rotVector, angleRad);
 
-
+	*/
 	return 0;
+	
 }
 
 
@@ -307,10 +309,20 @@ D3DXVECTOR3 Camera::moveForward(float numUnits)
 {
 	D3DXVECTOR3 vec;
 	D3DXVec3Normalize(&vec, &lookAtVector);	// make vec length 1
+	vec.y = 0;
+	D3DXVec3Normalize(&vec, &vec);
 	position += vec * numUnits;				// add numUnits lengthed vec
 	return (position);
 }
 
+D3DXVECTOR3 Camera::moveRight(float numUnits)
+{
+	D3DXVECTOR3 vec;
+	//D3DXVec3Normalize(&vec, &lookAtVector);	// make vec length 1
+	D3DXVec3Cross(&vec, &lookAtVector, &upVector);
+	position += vec * numUnits;				// add numUnits lengthed vec
+	return (position);
+}
 /******************************************************************/
 /*
 Purpose: 

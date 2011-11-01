@@ -49,6 +49,7 @@ public:
 	int changeAbsPoition(float x, float y, float z);		// change to a new position in space
 	int changeAbsPosition(D3DXVECTOR3 *v);					// change to a new position in space
 	D3DXVECTOR3 moveForward(float numUnits);  // moves the camera forward by the numUnits units along the lookAtVector
+	D3DXVECTOR3 moveRight(float numUnits);
 	void setCamera(D3DXVECTOR3 position, D3DXVECTOR3 lookAtPoint, D3DXVECTOR3 upVector);
 	int updateSpeed(float speed);
 	float getSpeed(void);
