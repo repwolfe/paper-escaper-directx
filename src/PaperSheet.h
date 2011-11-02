@@ -26,11 +26,18 @@ public:
 	void startRotating();
 	bool shouldDelete();
 
+	static const float sharedPitch;
+	static const float paperRatio;	// paper ratio
+	static const float sharedScaleY;
+	static const float sharedScaleX;
+	static const float sharedScaleZ;
+
 private:
 	paperVertex vertices[VTX_NUM];
 	long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
 
 	static IDirect3DVertexDeclaration9* paperDecl;
+	static const D3DXVECTOR3 _sharedPosition;
 
 	bool rotating;
 	bool deleteMe;

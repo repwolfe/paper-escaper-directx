@@ -4,16 +4,23 @@
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 
+const float PaperSheet::sharedPitch = 90.0f;
+const float PaperSheet::paperRatio = 11 / 8.5f;	// paper ratio
+const float PaperSheet::sharedScaleY = 2000.0f;
+const float PaperSheet::sharedScaleX = sharedScaleY * paperRatio;
+const float PaperSheet::sharedScaleZ = 0.5f;
+const D3DXVECTOR3 PaperSheet::_sharedPosition
+	= D3DXVECTOR3(0, -sharedScaleY, sharedScaleX * 0.75f);	// move the sheet so the origin is the middle
+															// of where the sheet falls
+
 PaperSheet::PaperSheet()
 {
-	mPitch = 90.0f;
-	float ratio = 11 / 8.5f;	// paper ratio
-	mScaleY = 2000.0f;
-	mScaleX = mScaleY * ratio;
-	mScaleZ = 0.5f;
+	mPitch = sharedPitch;
+	mScaleY = sharedScaleY;
+	mScaleX = sharedScaleX;
+	mScaleZ = sharedScaleZ;
 
-	mPosition = D3DXVECTOR3(0, -mScaleY, mScaleX * 0.75f);	// move the sheet so the origin is the middle
-															// of where the sheet falls
+	mPosition = _sharedPosition;
 
 	rotating = false;
 	deleteMe = false;

@@ -207,7 +207,8 @@ int myGame::renderFrame(int time)
 	// Draw score
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
-	sprintf(text, "Current Location: %d,%d,%d", (int)camLoc.x, (int)camLoc.y, (int)camLoc.z);
+	bool colliding = false;		// TODO: Replace with real value
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d", (int)camLoc.x, (int)camLoc.y, (int)camLoc.z, colliding);
 	font->DrawText(NULL, text, -1, &textBox, DT_CENTER | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
@@ -225,7 +226,7 @@ int myGame::renderFrame(int time)
 int myGame::initGame(void)
 {
 	// set the intial location of the camera
-	cam.setCamera(D3DXVECTOR3(0,10,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(50,0,50), D3DXVECTOR3(0,1,0));
+	cam.setCamera(D3DXVECTOR3(0,10,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
 
 	// initialize the projection matrix
