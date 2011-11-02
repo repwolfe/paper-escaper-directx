@@ -8,22 +8,24 @@ PaperSheet::PaperSheet()
 {
 	mPitch = 90.0f;
 	this->mPosition = D3DXVECTOR3(0,0,0);
-	mScaleX = 20.0f;
-	mScaleY = 20.0f;
+	float ratio = 11 / 8.5f;	// paper ratio
+	mScaleY = 2000.0f;
+	mScaleX = mScaleY * ratio;
 	mScaleZ = 0.5f;
 
 	rotating = false;
 	deleteMe = false;
 
-	D3DCOLOR color = D3DCOLOR_XRGB(255, 255, 255);
-	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color);
-	vertices[1] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color);
-	vertices[2] = paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color);
-	vertices[3] = paperVertex(D3DXVECTOR3(1.0f, -1.0f, -1.0f), color);
-	vertices[4] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color);
-	vertices[5] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color);
-	vertices[6] = paperVertex(D3DXVECTOR3(1.0f,  1.0f,  1.0f), color);
-	vertices[7] = paperVertex(D3DXVECTOR3(1.0f, -1.0f,  1.0f), color);
+	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
+	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
+	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1);
+	vertices[1] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1);
+	vertices[2] = paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color1);
+	vertices[3] = paperVertex(D3DXVECTOR3(1.0f, -1.0f, -1.0f), color1);
+	vertices[4] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1);
+	vertices[5] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color2);
+	vertices[6] = paperVertex(D3DXVECTOR3(1.0f,  1.0f,  1.0f), color2);
+	vertices[7] = paperVertex(D3DXVECTOR3(1.0f, -1.0f,  1.0f), color1);
 
 	indices[0] = 0; indices[1] = 1; indices[2] = 2; // Front face
 	indices[3] = 0; indices[4] = 2; indices[5] = 3;
@@ -118,7 +120,7 @@ int PaperSheet::render(int time)
 	
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
 	md3dDev->SetVertexDeclaration(paperDecl);
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	md3dDev->SetIndices(mIndBuf);
 	md3dDev->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
 	return 0;

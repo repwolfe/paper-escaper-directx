@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -21,6 +20,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

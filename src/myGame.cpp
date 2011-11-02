@@ -132,7 +132,7 @@ int myGame::updateGameState(long time)
 	}
 
 	// Check if last sheet is done rotating
-	if (sheets.back()->shouldDelete()) {
+	if (!sheets.empty() && sheets.back()->shouldDelete()) {
 		delete previous;					// delete the previously stored sheet
 		previous = sheets.back();
 		sheets.pop_back();
