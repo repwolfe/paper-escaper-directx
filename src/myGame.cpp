@@ -46,21 +46,20 @@
 
 #include <stdio.h>
 
-
-
-
-
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, x(0), fontCourier(NULL), previous(NULL)
+, font(NULL), previous(NULL), fontHeight(15)
 {
-
+	textBox.top = 15;
+	textBox.left = 15;
+	textBox.bottom = textBox.top + fontHeight * 8;
+	textBox.right = textBox.left + 250;
 }
 
 myGame::~myGame(void)
 {
-	if (fontCourier != NULL) {
-		fontCourier->Release();
-		fontCourier = NULL;
+	if (font != NULL) {
+		font->Release();
+		font = NULL;
 	}
 	
 	while (sheets.empty() == false) {
@@ -195,6 +194,7 @@ int myGame::renderFrame(int time)
 	md3dDev->BeginScene();    // begins the 3D scene
 
 	std::list<PaperSheet*>::const_iterator iter = sheets.begin();
+
 	while (iter != sheets.end()) {
 		(*iter)->render(time);
 		++iter;
@@ -203,6 +203,12 @@ int myGame::renderFrame(int time)
 	if (previous != NULL) {
 		previous->render(time);
 	}
+
+	// Draw score
+	char text[1024];
+	D3DXVECTOR3 camLoc = cam.getPosition();
+	sprintf(text, "Current Location: %d,%d,%d", (int)camLoc.x, (int)camLoc.y, (int)camLoc.z);
+	font->DrawText(NULL, text, -1, &textBox, DT_CENTER | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
 
@@ -219,22 +225,27 @@ int myGame::renderFrame(int time)
 int myGame::initGame(void)
 {
 	// set the intial location of the camera
-	cam.setCamera(D3DXVECTOR3(-40,70,-40), D3DXVECTOR3(50,0,50), D3DXVECTOR3(0,1,0));
+	cam.setCamera(D3DXVECTOR3(0,10,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(50,0,50), D3DXVECTOR3(0,1,0));
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
 
 	// initialize the projection matrix
 	setProj(1.0,5000.0,D3DXToRadian(80),((float) this->mWndWidth)/this->mWndHeight);
-
-	x = this->getWndWidth() / 2;
-	y = this->getWndHeight() / 2;
-	dx = 1;
-	dy = 1;
-
-	textBox.top = 0;
-	textBox.left = 0;
-	textBox.bottom = 50;
-	textBox.right = 280;
 	
+	// Set up the font
+	 D3DXCreateFont(md3dDev,
+						fontHeight, // height of font
+						0,	// use the default width
+						FW_MEDIUM+50,
+						//FW_NORMAL,	// normal font weight
+						1, // no Mipmap
+						FALSE, // italic
+						DEFAULT_CHARSET, // default character set
+						OUT_DEFAULT_PRECIS, // default precision
+						DEFAULT_QUALITY, // default quality
+						DEFAULT_PITCH ||FF_DONTCARE, // more defaults...
+						"Courier",	// typeface “Courier"
+						&font); 
+
 	for (int i = 0; i < 125; ++i)
 	{
 		sheets.push_back(new PaperSheet());
@@ -242,7 +253,6 @@ int myGame::initGame(void)
 
 	sheets.back()->startRotating();
 	
-
 	return 0;
 }
 

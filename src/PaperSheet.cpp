@@ -7,11 +7,13 @@ IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 PaperSheet::PaperSheet()
 {
 	mPitch = 90.0f;
-	this->mPosition = D3DXVECTOR3(0,0,0);
 	float ratio = 11 / 8.5f;	// paper ratio
 	mScaleY = 2000.0f;
 	mScaleX = mScaleY * ratio;
 	mScaleZ = 0.5f;
+
+	mPosition = D3DXVECTOR3(0, -mScaleY, mScaleX * 0.75f);	// move the sheet so the origin is the middle
+															// of where the sheet falls
 
 	rotating = false;
 	deleteMe = false;
@@ -128,7 +130,7 @@ int PaperSheet::render(int time)
 
 int PaperSheet::updateState() {
 	if (rotating) {
-		mPitch += 2.0f;
+		mPitch += 0.5f;
 		if (mPitch == 270.0f) {
 			rotating = false;
 			deleteMe = true;

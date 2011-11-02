@@ -59,21 +59,11 @@ public:
 	virtual int setMatrices(void);
 
 	Camera cam;	
-
-	// variables used to position the text on the screen
-	int x;	// x location of the string to be drawn
-	int y;	// y location of the string to be drawn
-	int dx;		// change in x at each frame
-	int dy;		// change in y at each frame
-	RECT textBox;	// rectangle for the text
-
-
-	char s[1024]; // string to be drawn
-
-	 
-	LPD3DXFONT fontCourier; // font to be used 
-
+	
 private:
 	std::list<PaperSheet*> sheets;
 	PaperSheet* previous;
+	RECT textBox;
+	LPD3DXFONT font; // font to be used
+	int fontHeight;
 };
