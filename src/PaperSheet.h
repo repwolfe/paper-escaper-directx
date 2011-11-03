@@ -39,6 +39,11 @@ private:
 	static IDirect3DVertexDeclaration9* paperDecl;
 	static const D3DXVECTOR3 _sharedPosition;
 
+	static LPD3DXSPRITE d3dSprite;
+	static LPDIRECT3DTEXTURE9 gTexture;
+	static D3DXVECTOR3 texCenter;
+	static D3DXVECTOR3 texPos;
+
 	bool rotating;
 	bool deleteMe;
 };

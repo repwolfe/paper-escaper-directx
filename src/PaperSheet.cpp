@@ -3,6 +3,8 @@
 #include "PaperSheet.h"
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
+LPDIRECT3DTEXTURE9 PaperSheet::gTexture = NULL;
+LPD3DXSPRITE PaperSheet::d3dSprite = NULL;
 
 const float PaperSheet::sharedPitch = 90.0f;
 const float PaperSheet::paperRatio = 11 / 8.5f;	// paper ratio
@@ -13,7 +15,7 @@ const D3DXVECTOR3 PaperSheet::_sharedPosition
 	= D3DXVECTOR3(0, -sharedScaleY, sharedScaleX * 0.75f);	// move the sheet so the origin is the middle
 															// of where the sheet falls
 
-PaperSheet::PaperSheet()
+PaperSheet::PaperSheet() 
 {
 	mPitch = sharedPitch;
 	mScaleY = sharedScaleY;
@@ -56,6 +58,8 @@ PaperSheet::~PaperSheet() {
 	mVtxBuf->Release();
 	paperDecl->Release();
 	mIndBuf->Release();
+	if (gTexture != NULL) { gTexture->Release(); }
+	if (d3dSprite != NULL) { d3dSprite->Release(); }
 }
 
 int PaperSheet::initGeom() {
@@ -96,6 +100,13 @@ int PaperSheet::initGeom() {
 	memcpy(ind, indices, (NUM_TRIANGLES*3)*sizeof(long));
 	mIndBuf->Unlock();
 
+	// Set up Texture
+	if (d3dSprite == NULL && gTexture == NULL) {
+		D3DXCreateSprite(md3dDev, &d3dSprite);
+		D3DXCreateTextureFromFileEx(md3dDev, "sheet.png", D3DX_DEFAULT_NONPOW2 , D3DX_DEFAULT_NONPOW2 , D3DX_DEFAULT, 0, 
+		D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &gTexture);
+	}
+
 	return 0;
 }
 
@@ -132,6 +143,11 @@ int PaperSheet::render(int time)
 	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	md3dDev->SetIndices(mIndBuf);
 	md3dDev->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
+
+	//d3dSprite->Begin(NULL);
+	//d3dSprite->Draw(gTexture, NULL, NULL, NULL, D3DCOLOR_ARGB(0,255,255,255));
+	//d3dSprite->End();
+
 	return 0;
 }
 
