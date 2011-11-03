@@ -3,14 +3,15 @@
 
 #include "GameObject.h"
 
-#define VTX_NUM 8
-#define NUM_TRIANGLES 12	// 6 * 2
+#define NUM_TRIANGLES 12			// 6 sides of a cube * 2 triangles per cube
+#define VTX_NUM NUM_TRIANGLES * 3	// each triangle needs 3 vertices
 
 struct paperVertex {
 	D3DXVECTOR3 pos;
 	DWORD color;        // The vertex color
-	paperVertex(D3DXVECTOR3 p, DWORD c) {pos = p; color = c;}
-	paperVertex() {pos = D3DXVECTOR3(0,0,0); color = 0;}
+	D3DXVECTOR2 texCoor;
+	paperVertex(D3DXVECTOR3 p, DWORD c, D3DXVECTOR2 t) {pos = p; color = c; texCoor = t;}
+	paperVertex() {pos = D3DXVECTOR3(0,0,0); color = 0; texCoor = D3DXVECTOR2(0,0);}
 };
 
 class PaperSheet : GameObject
@@ -34,12 +35,11 @@ public:
 
 private:
 	paperVertex vertices[VTX_NUM];
-	long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
+	//long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
 
 	static IDirect3DVertexDeclaration9* paperDecl;
 	static const D3DXVECTOR3 _sharedPosition;
 
-	static LPD3DXSPRITE d3dSprite;
 	static LPDIRECT3DTEXTURE9 gTexture;
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
