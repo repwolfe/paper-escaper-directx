@@ -4,7 +4,7 @@
 #include "GameObject.h"
 
 #define NUM_TRIANGLES 12			// 6 sides of a cube * 2 triangles per cube
-#define VTX_NUM NUM_TRIANGLES * 3	// each triangle needs 3 vertices
+#define VTX_NUM NUM_TRIANGLES * 2
 
 struct paperVertex {
 	D3DXVECTOR3 pos;

@@ -5,11 +5,11 @@
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 LPDIRECT3DTEXTURE9 PaperSheet::gTexture = NULL;
 
-const float PaperSheet::sharedPitch = 90.0f;
+const float PaperSheet::sharedPitch = /*0.0f*/90.0f;
 const float PaperSheet::paperRatio = 11 / 8.5f;	// paper ratio
-const float PaperSheet::sharedScaleY = 100.0f;
+const float PaperSheet::sharedScaleY = 2000.0f;
 const float PaperSheet::sharedScaleX = sharedScaleY * paperRatio;
-const float PaperSheet::sharedScaleZ = 100.0f;//0.5f;
+const float PaperSheet::sharedScaleZ = 0.5f;
 const D3DXVECTOR3 PaperSheet::_sharedPosition
 	= D3DXVECTOR3(0, -sharedScaleY, sharedScaleX * 0.75f);	// move the sheet so the origin is the middle
 															// of where the sheet falls
@@ -29,6 +29,47 @@ PaperSheet::PaperSheet()
 	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
 	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
 
+	// Front Face (1-2-3-4)
+	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[2]		= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[3]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
+
+	// Right Face (2-6-4-8)
+	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[5]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[7]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+
+	// Top Face (5-6-1-2)
+	vertices[8]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[9]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[10]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[11]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
+
+	// Back Face (6-5-8-7)
+	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[13]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[15]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+
+	// Left Face (5-1-7-3)
+	vertices[16]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[17]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[18]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[19]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
+
+	// Bottom Face (3-4-7-8)
+	vertices[21]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
+	vertices[22]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[22]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[23]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+
+	/*
+	// Only 8 vertices that unfortunately have to be repeated several times in order to use texture coordinates
+	// Besides each vertex is the actual vertex that it corresponds to
+	// Each face of the sheet is represented as two triangles, where the vertices are listed clockwise
+	// Front face
 	vertices[0]		= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,0));	// 1
 	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 2
 	vertices[2]		= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 3
@@ -37,56 +78,52 @@ PaperSheet::PaperSheet()
 	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));	// 4
 	vertices[5]		= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 3
 	
-	//
-
-	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,0));	// 5
-	vertices[7]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 6
-	vertices[8]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 7
+	// Right face
+	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,0));	// 2
+	vertices[7]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 5
+	vertices[8]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));	// 6
 	
-	vertices[9]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 6
-	vertices[10]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 8
-	vertices[11]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 7
+	vertices[9]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 5
+	vertices[10]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 6
+	vertices[11]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 4
 	
-	//
-
-	vertices[12]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 9
-	vertices[13]		= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 10
-	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 12
+	// Back face
+	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 5
+	vertices[13]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 7
+	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 6
 	
-	vertices[15]		= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 10
-	vertices[16]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 11
-	vertices[17]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 12
+	vertices[15]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 7
+	vertices[16]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 8
+	vertices[17]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 6
 	
-	//
-
-	vertices[18]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 13
-	vertices[19]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 14
-	vertices[20]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 16
+	// Left face
+	vertices[18]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 7
+	vertices[19]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 1
+	vertices[20]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 8
 	
-	vertices[21]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 14
-	vertices[22]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 15
-	vertices[23]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 16
+	vertices[21]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 1
+	vertices[22]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));	// 3
+	vertices[23]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 8
 	
-	//
-
-	vertices[24]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 13
-	vertices[25]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 9
-	vertices[26]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 14
+	// Top face
+	vertices[24]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 7
+	vertices[25]	= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 5
+	vertices[26]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 1
 	
-	vertices[27]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 9
-	vertices[28]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,1));	// 11
-	vertices[29]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// 14
+	vertices[27]	= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 5
+	vertices[28]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 2
+	vertices[29]	= paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 1
 	
-	//
+	// Bottom face	
+	vertices[30]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(0,0));	// 6
+	vertices[31]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 8
+	vertices[32]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 4
 	
-	vertices[30]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 12
-	vertices[31]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 16
-	vertices[32]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 7
+	vertices[33]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,0));	// 8
+	vertices[34]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));	// 3
+	vertices[35]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 4
 	
-	vertices[33]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color1, D3DXVECTOR2(1,1));	// 16
-	vertices[34]	= paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 15
-	vertices[35]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));	// 7
-	
+	*/
 	/*
 	vertices[0] = paperVertex(D3DXVECTOR3(-1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));	// bottom left corner of tex
 	vertices[1] = paperVertex(D3DXVECTOR3(-1.0f,  1.0f, -1.0f), color1, D3DXVECTOR2(0,0));	// top left corner of tex
@@ -203,9 +240,13 @@ int PaperSheet::render(int time)
 	md3dDev->SetTexture(0, gTexture);
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
 	md3dDev->SetVertexDeclaration(paperDecl);
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	//md3dDev->SetIndices(mIndBuf);
-	md3dDev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 16);
+	for (int i = 0; i < 5; i++)
+		md3dDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
+	md3dDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 20, 2);
+	//md3dDev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, NUM_TRIANGLES);
 	//DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
 
 	return 0;
