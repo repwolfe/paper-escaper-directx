@@ -29,11 +29,11 @@ PaperSheet::PaperSheet()
 	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
 	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
 
-	// Front Face (1-2-3-4)
-	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[2]		= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[3]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
+	// Front Face (1-2-3-4), flip the vertex coordinates to show properly for some reason
+	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
+	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[2]		= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[3]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
 
 	// Right Face (2-6-4-8)
 	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
@@ -47,11 +47,11 @@ PaperSheet::PaperSheet()
 	vertices[10]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
 	vertices[11]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
 
-	// Back Face (6-5-8-7)
-	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[13]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[15]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+	// Back Face (6-5-8-7), flip the vertex coordinates to show properly for some reason
+	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+	vertices[13]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
+	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
+	vertices[15]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
 
 	// Left Face (5-1-7-3)
 	vertices[16]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
