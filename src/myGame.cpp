@@ -47,7 +47,7 @@
 #include <stdio.h>
 
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, font(NULL), previous(NULL), fontHeight(15)
+, font(NULL), previous(NULL), floor(NULL), fontHeight(15)
 {
 	textBox.top = 15;
 	textBox.left = 15;
@@ -68,6 +68,10 @@ myGame::~myGame(void)
 	}
 
 	delete previous;
+	delete floor;
+
+	PaperSheet::releaseTextures();
+	PaperSheet::releaseVertices();
 }
 
 
@@ -131,13 +135,12 @@ int myGame::updateGameState(long time)
 	}
 
 	// Check if last sheet is done rotating
-	if (!sheets.empty() && sheets.back()->shouldDelete()) {
-		delete previous;					// delete the previously stored sheet
+	if (sheets.back()->shouldDelete()) {
+		delete previous;						// delete the previously stored sheet
 		previous = sheets.back();
 		sheets.pop_back();
-		if (!sheets.empty()) {
-			sheets.back()->startRotating();		// start rotating the new last sheet
-		}
+		sheets.push_front(new PaperSheet());	// add a new sheet
+		sheets.back()->startRotating();			// start rotating the new last sheet
 	}
 
 	// move the camera
@@ -191,7 +194,10 @@ int myGame::renderFrame(int time)
 	if (rc != D3D_OK) {
 		i++;
 	}
+
 	md3dDev->BeginScene();    // begins the 3D scene
+
+	floor->render(time);
 
 	std::list<PaperSheet*>::const_iterator iter = sheets.begin();
 
@@ -247,10 +253,19 @@ int myGame::initGame(void)
 						"Courier",	// typeface “Courier"
 						&font); 
 
-	for (int i = 0; i < 125; ++i)
-	{
-		sheets.push_back(new PaperSheet());
-	}
+	PaperSheet::setupVertices();
+	PaperSheet::loadTextures();
+
+	// Set up floor
+	floor = new PaperSheet();
+	floor->setPitch(270.0f);		// have it flat on ground
+	floor->setFloor();
+
+	// Set up sheets
+	for (int i = 0; i < 4; ++i)
+		{
+			sheets.push_back(new PaperSheet());
+		}
 
 	sheets.back()->startRotating();
 	

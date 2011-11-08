@@ -3,7 +3,10 @@
 #include "PaperSheet.h"
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
+LPDIRECT3DTEXTURE9* PaperSheet::textures = new LPDIRECT3DTEXTURE9[NUM_TEXTURES];	// possible textures to use
 LPDIRECT3DTEXTURE9 PaperSheet::gTexture = NULL;
+LPDIRECT3DTEXTURE9 PaperSheet::holeTexture = NULL;
+paperVertex* PaperSheet::vertices = new paperVertex[VTX_NUM];
 
 const float PaperSheet::sharedPitch = /*0.0f*/90.0f;
 const float PaperSheet::paperRatio = 11 / 8.5f;	// paper ratio
@@ -25,45 +28,7 @@ PaperSheet::PaperSheet()
 
 	rotating = false;
 	deleteMe = false;
-
-	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
-	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
-
-	// Front Face (1-2-3-4), flip the vertex coordinates to show properly for some reason
-	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
-	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[2]		= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[3]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
-
-	// Right Face (2-6-4-8)
-	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[5]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[7]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
-
-	// Top Face (5-6-1-2)
-	vertices[8]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[9]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[10]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[11]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
-
-	// Back Face (6-5-8-7), flip the vertex coordinates to show properly for some reason
-	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
-	vertices[13]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[15]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
-
-	// Left Face (5-1-7-3)
-	vertices[16]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[17]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[18]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[19]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,1));
-
-	// Bottom Face (3-4-7-8)
-	vertices[21]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0));
-	vertices[22]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0));
-	vertices[22]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,1));
-	vertices[23]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,1));
+	floor	 = false;
 
 	/*
 	// Only 8 vertices that unfortunately have to be repeated several times in order to use texture coordinates
@@ -154,7 +119,74 @@ PaperSheet::~PaperSheet() {
 	mVtxBuf->Release();
 	paperDecl->Release();
 	//mIndBuf->Release();
-	if (gTexture != NULL) { gTexture->Release(); }
+}
+
+void PaperSheet::setupVertices()
+{
+	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
+	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
+
+	// Front Face (1-2-3-4), flip the vertex coordinates to show properly for some reason
+	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1), D3DXVECTOR2(1,1));
+	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1), D3DXVECTOR2(0,1));
+	vertices[2]		= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(1,0), D3DXVECTOR2(1,0));
+	vertices[3]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+
+	// Right Face (2-6-4-8)
+	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[5]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[7]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+
+	// Top Face (5-6-1-2)
+	vertices[8]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[9]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[10]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[11]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1), D3DXVECTOR2(1,1));
+
+	// Back Face (6-5-8-7), flip the vertex coordinates to show properly for some reason
+	vertices[12]	= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(1,1), D3DXVECTOR2(1,1));
+	vertices[13]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,1), D3DXVECTOR2(0,1));
+	vertices[14]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(1,0), D3DXVECTOR2(1,0));
+	vertices[15]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+
+	// Left Face (5-1-7-3)
+	vertices[16]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[17]	= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[18]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[19]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+
+	// Bottom Face (3-4-7-8)
+	vertices[21]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[22]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, -1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[22]	= paperVertex(D3DXVECTOR3( -1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+	vertices[23]	= paperVertex(D3DXVECTOR3( 1.0f, -1.0f, 1.0f), color1, D3DXVECTOR2(0,0), D3DXVECTOR2(0,0));
+}
+
+void PaperSheet::releaseVertices()
+{
+	delete[] vertices;
+}
+
+void PaperSheet::loadTextures()
+{
+	D3DXCreateTextureFromFile(md3dDev, "sheet.png", &textures[0]);
+	textures[1] = textures[2] = textures[3] = textures[4] = NULL;	// TODO: Remove!
+	D3DXCreateTextureFromFile(md3dDev, "hole.png", &holeTexture);
+	gTexture = textures[0];											// TODO: Randomize
+	md3dDev->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	md3dDev->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+}
+
+void PaperSheet::releaseTextures()
+{
+	for (int i = 0; i < NUM_TEXTURES; ++i) {
+		// TODO: remove this check
+		if (textures[i] != NULL) { textures[i]->Release(); }
+	}
+	delete[] textures;
+	holeTexture->Release();
+
 }
 
 int PaperSheet::initGeom() {
@@ -171,11 +203,13 @@ int PaperSheet::initGeom() {
 		{0,0,D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
 		{0,0,D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
 		{0,0,D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+		{0,0,D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1},
 		D3DDECL_END()
 	};
 	decl[0].Offset = (char *) &v.pos - (char *) &v;
 	decl[1].Offset = (char *) &v.color - (char *) &v;
 	decl[2].Offset = (char *) &v.texCoor - (char *) &v;
+	decl[3].Offset = (char *) &v.texCoor2 - (char *) &v;
 	
 	md3dDev->CreateVertexDeclaration(decl, &paperDecl);
 
@@ -197,14 +231,7 @@ int PaperSheet::initGeom() {
 	memcpy(ind, indices, (NUM_TRIANGLES*3)*sizeof(long));
 	mIndBuf->Unlock();
 	*/
-	// Set up Texture
-	if (gTexture == NULL) {
-		D3DXCreateTextureFromFile(md3dDev, "sheet.png", &gTexture);
-		md3dDev->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		md3dDev->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-		//D3DXCreateTextureFromFileEx(md3dDev, "sheet.png", D3DX_DEFAULT_NONPOW2 , D3DX_DEFAULT_NONPOW2 , D3DX_DEFAULT, 0, 
-		//D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &gTexture);
-	}
+
 
 	return 0;
 }
@@ -237,15 +264,52 @@ int PaperSheet::render(int time)
 
 	md3dDev->SetTransform(D3DTS_WORLD, &worldMat);
 	
-	md3dDev->SetTexture(0, gTexture);
 	md3dDev->SetStreamSource(0, mVtxBuf, 0, sizeof(paperVertex));
 	md3dDev->SetVertexDeclaration(paperDecl);
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+/*	//arg 1 is texture
+	md3dDev->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+	//select arg 1 
+	md3dDev->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
+
+	//arg 1 is texture
+	md3dDev->SetTextureStageState(1,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+	//arg 2 is last stage
+	md3dDev->SetTextureStageState(1,D3DTSS_COLORARG2,D3DTA_CURRENT);
+	//multiply arguments
+	md3dDev->SetTextureStageState(1,D3DTSS_COLOROP,D3DTOP_MODULATE);
+*/
+
+	md3dDev->SetTexture(0, gTexture);
+
+	// If this isn't the floor (which most aren't) then deal with the potential hole
+	if (!floor) {
+		md3dDev->SetTexture(1, holeTexture);
+		md3dDev->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+		md3dDev->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);	
+
+		md3dDev->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+		md3dDev->SetTextureStageState(1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		md3dDev->SetTextureStageState(1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+
+		md3dDev->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_MODULATE );
+		md3dDev->SetTextureStageState( 1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
+		md3dDev->SetTextureStageState( 1, D3DTSS_ALPHAARG2, D3DTA_CURRENT );
+
+		md3dDev->SetRenderState( D3DRS_ALPHABLENDENABLE, true);
+		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);//alpha
+		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);//alpha
+		md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+		md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	}
+	else {
+		md3dDev->SetTexture(1, NULL);
+	}
+
 	//md3dDev->SetIndices(mIndBuf);
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 6; i++)
 		md3dDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
-	md3dDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 20, 2);
+	//md3dDev->DrawPrimitive(D3DPT_TRIANGLESTRIP, 20, 2);
 	//md3dDev->DrawPrimitive(D3DPT_TRIANGLELIST, 0, NUM_TRIANGLES);
 	//DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, VTX_NUM, 0, NUM_TRIANGLES);
 
@@ -270,4 +334,12 @@ void PaperSheet::startRotating() {
 
 bool PaperSheet::shouldDelete() {
 	return deleteMe;
+}
+
+void PaperSheet::setPitch(float newValue) {
+	mPitch = newValue;
+}
+
+void PaperSheet::setFloor() {
+	floor = true;
 }
