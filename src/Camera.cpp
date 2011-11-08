@@ -121,9 +121,17 @@ int Camera::pitch(float angleDeg)
 
 	// get rotation axis
 	D3DXVec3Cross(&rotVector, &lookAtVector, &upVector);
-
+	
 	updateOrientation(rotVector, angleRad);
 
+	//undo rotation
+	//D3DXVECTOR3 midVector = lookAtVector + upVector;
+	D3DXVECTOR3 xVector(1.0,0.0,0.0);
+	float dot = D3DXVec3Dot(&xVector, &lookAtVector);
+	dot = acos(dot);
+	if(dot < 0 && dot > (3.14/2) ){
+		updateOrientation(rotVector, -angleRad);
+	}
 
 	return 0;
 }
@@ -146,10 +154,10 @@ Return:
 int Camera::yaw(float angleDeg)
 {
 	float angleRad = D3DXToRadian(angleDeg);
-	D3DXVECTOR3 rotVector(0.0,0.0,0.0);
+	D3DXVECTOR3 rotVector(0.0,1.0,0.0);
 
 	// get rotation axis
-	rotVector = upVector;
+	//rotVector = upVector;
 
 	updateOrientation(rotVector, angleRad);
 	return 0;
@@ -320,7 +328,18 @@ D3DXVECTOR3 Camera::moveRight(float numUnits)
 	D3DXVECTOR3 vec;
 	//D3DXVec3Normalize(&vec, &lookAtVector);	// make vec length 1
 	D3DXVec3Cross(&vec, &lookAtVector, &upVector);
+	vec.y = 0;
 	position += vec * numUnits;				// add numUnits lengthed vec
+	if(position.x > maxx){
+		position.x = maxx;
+	}else if(position.x < minx){
+		position.x = minx;
+	}
+	if(position.z > maxz){
+		position.z = maxz;
+	}else if(position.x < minz){
+		position.z = minz;
+	}
 	return (position);
 }
 /******************************************************************/
@@ -412,4 +431,12 @@ int Camera::updateSpeed(float speed)
 float Camera::getSpeed(void)
 {
 	return(speed);
+}
+
+int Camera::setBoundingBox(float BBminx, float BBmaxx, float BBminz, float BBmaxz){
+	minx = BBminx;
+	maxx = BBmaxx;
+	minz = BBminz;
+	maxz = BBmaxz;
+	return 0;
 }

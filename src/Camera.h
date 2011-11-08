@@ -53,7 +53,7 @@ public:
 	void setCamera(D3DXVECTOR3 position, D3DXVECTOR3 lookAtPoint, D3DXVECTOR3 upVector);
 	int updateSpeed(float speed);
 	float getSpeed(void);
-
+	int setBoundingBox(float minx, float maxx, float minz, float maxz);
 
 
 private:
@@ -67,6 +67,6 @@ public:
 	D3DXVECTOR3 upVector;
 	D3DXVECTOR3 lookAtVector;
 	D3DMATRIX * getViewMatrix(D3DXMATRIX * viewMatrix);
-	float speed;
+	float speed, minx, maxx,  minz,  maxz;
 	// change the speed of the camera motion
 };
