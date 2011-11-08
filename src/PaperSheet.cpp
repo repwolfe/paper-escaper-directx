@@ -285,26 +285,27 @@ int PaperSheet::render(int time)
 	// If this isn't the floor (which most aren't) then deal with the potential hole
 	if (!floor) {
 		md3dDev->SetTexture(1, holeTexture);
+		
 		md3dDev->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 		md3dDev->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);	
 
 		md3dDev->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 		md3dDev->SetTextureStageState(1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		md3dDev->SetTextureStageState(1, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-		md3dDev->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_MODULATE );
-		md3dDev->SetTextureStageState( 1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
-		md3dDev->SetTextureStageState( 1, D3DTSS_ALPHAARG2, D3DTA_CURRENT );
+		md3dDev->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_MODULATE );
+		md3dDev->SetTextureStageState(1, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
+		md3dDev->SetTextureStageState(1, D3DTSS_ALPHAARG2, D3DTA_CURRENT );
 
 		md3dDev->SetRenderState( D3DRS_ALPHABLENDENABLE, true);
 		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);//alpha
 		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);//alpha
-		md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-		md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	}
 	else {
 		md3dDev->SetTexture(1, NULL);
 	}
+
+	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
 	//md3dDev->SetIndices(mIndBuf);
 	for (int i = 0; i < 6; i++)
