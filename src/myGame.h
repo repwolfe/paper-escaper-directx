@@ -63,6 +63,7 @@ public:
 private:
 	std::list<PaperSheet*> sheets;
 	PaperSheet* previous;
+	PaperSheet* floor;
 	RECT textBox;
 	LPD3DXFONT font; // font to be used
 	int fontHeight;
