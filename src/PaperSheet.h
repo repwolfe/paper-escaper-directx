@@ -48,14 +48,17 @@ public:
 	static const float sharedScaleZ;
 
 private:
+	void randomizeHole();
+	void createAlphaMask();
+
 	static paperVertex* vertices;
 	//long indices[NUM_TRIANGLES * 3];		// 3 vertices per triangle
 
 	static IDirect3DVertexDeclaration9* paperDecl;
 	static const D3DXVECTOR3 _sharedPosition;
 
-	static LPDIRECT3DTEXTURE9* textures;		// possible textures to use
-	static LPDIRECT3DTEXTURE9 gTexture;
+	static LPDIRECT3DTEXTURE9* textures;				// possible textures to use for sheet
+	LPDIRECT3DTEXTURE9 gTexture;			// current sheet texture
 	static LPDIRECT3DTEXTURE9 holeTexture;
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
