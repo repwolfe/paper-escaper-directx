@@ -127,6 +127,7 @@ void PaperSheet::setupVertices()
 	D3DCOLOR color1 = D3DCOLOR_XRGB(255, 255, 255);
 	D3DCOLOR color2	= D3DCOLOR_XRGB(200, 200, 200);
 
+	// TODO: Remove extra texture coordinates
 	// Front Face (1-2-3-4), flip the vertex coordinates to show properly for some reason
 	vertices[0]		= paperVertex(D3DXVECTOR3( -1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(1,1), D3DXVECTOR2(1,1));
 	vertices[1]		= paperVertex(D3DXVECTOR3( 1.0f, 1.0f, -1.0f), color1, D3DXVECTOR2(0,1), D3DXVECTOR2(0,1));
@@ -264,15 +265,18 @@ void PaperSheet::createAlphaMask()
 	UINT height = desc.Height;
 	BYTE* buffer = (BYTE*)(rec.pBits);
 
-	for (UINT y = 0; y < height; ++y) {
+	for (UINT y = 0; y < height*4; ++y) {		// Multiply by 4 for some reason
 		for (UINT x = 0; x < width; ++x) {
 			DWORD index = (x * 4) + (y * rec.Pitch/4);
-			buffer[index] = (BYTE) 0;		// red
-			buffer[index+1] = (BYTE) 0;	// green
-			buffer[index+2] = (BYTE) 0;	// blue
+			if (index % 10 == 0)	// TODO: Remove
+			//DWORD index = (y * rec.Pitch/4) + x;
+			//buffer[index] = (BYTE) 0;		// blue
+			//buffer[index+1] = (BYTE) 0;	// green
+			//buffer[index+2] = (BYTE) 0;	// red
 			buffer[index+3] = (BYTE)0;		// Alpha
 		}
 	}
+	
 
 	surf->UnlockRect();
 	
@@ -349,11 +353,20 @@ int PaperSheet::render(int time)
 */
 
 	md3dDev->SetTexture(0, gTexture);
+	//alpha blending enabled
+	md3dDev->SetRenderState(D3DRS_ALPHABLENDENABLE,true);
+	//source blend factor
+	md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
+	//destination blend factor
+	md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+
+	//alpha from texture
+	md3dDev->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
 
 	// If this isn't the floor (which most aren't) then deal with the potential hole
-	if (!floor) {
+/*	if (!floor) {
 		md3dDev->SetTexture(1, holeTexture);
-		/*
+		
 		md3dDev->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 		md3dDev->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);	
 
@@ -368,23 +381,16 @@ int PaperSheet::render(int time)
 		md3dDev->SetRenderState( D3DRS_ALPHABLENDENABLE, true);
 		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);//alpha
 		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);//alpha
-		*/
-		//alpha blending enabled
-		md3dDev->SetRenderState(D3DRS_ALPHABLENDENABLE,true);
-		//source blend factor
-		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
-		//destination blend factor
-		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
-
-		//alpha from texture
-		md3dDev->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
+		
 	}
 	else {
 		md3dDev->SetTexture(1, NULL);
 	}
+	*/
 
-	md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	// TODO: Find out if these lines are necessary
+	//md3dDev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	//md3dDev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
 	//md3dDev->SetIndices(mIndBuf);
 	for (int i = 0; i < 6; i++)
