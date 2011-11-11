@@ -217,7 +217,7 @@ int PaperSheet::initGeom() {
 	randomizeHole();
 
 	// Make sheet transparent
-	//createAlphaMask();
+	createAlphaMask();
 
 	// lock the buffer and copy the vertices (locking the entire array)		
 	mVtxBuf->Lock(0,0,(void**)&vtx, 0);
@@ -253,6 +253,30 @@ void PaperSheet::randomizeHole()
 
 void PaperSheet::createAlphaMask()
 {
+	D3DLOCKED_RECT rec;
+	D3DSURFACE_DESC desc;
+	IDirect3DSurface9* surf;
+	gTexture->GetSurfaceLevel(0, &surf);
+	surf->GetDesc(&desc);
+	surf->LockRect(&rec, NULL, 0);
+
+	UINT width = desc.Width;
+	UINT height = desc.Height;
+	BYTE* buffer = (BYTE*)(rec.pBits);
+
+	for (UINT y = 0; y < height; ++y) {
+		for (UINT x = 0; x < width; ++x) {
+			DWORD index = (x * 4) + (y * rec.Pitch/4);
+			buffer[index] = (BYTE) 0;		// red
+			buffer[index+1] = (BYTE) 0;	// green
+			buffer[index+2] = (BYTE) 0;	// blue
+			buffer[index+3] = (BYTE)0;		// Alpha
+		}
+	}
+
+	surf->UnlockRect();
+	
+	/*
 	// TODO: Fix this as it is is broken!
 	D3DSURFACE_DESC desc;
 	D3DLOCKED_RECT rec;
@@ -275,6 +299,7 @@ void PaperSheet::createAlphaMask()
 		}
 		buffer += pitchDiff;
 	}
+	*/
 
 	gTexture->UnlockRect(0);
 }
@@ -328,7 +353,7 @@ int PaperSheet::render(int time)
 	// If this isn't the floor (which most aren't) then deal with the potential hole
 	if (!floor) {
 		md3dDev->SetTexture(1, holeTexture);
-		
+		/*
 		md3dDev->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 		md3dDev->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);	
 
@@ -343,6 +368,16 @@ int PaperSheet::render(int time)
 		md3dDev->SetRenderState( D3DRS_ALPHABLENDENABLE, true);
 		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);//alpha
 		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);//alpha
+		*/
+		//alpha blending enabled
+		md3dDev->SetRenderState(D3DRS_ALPHABLENDENABLE,true);
+		//source blend factor
+		md3dDev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
+		//destination blend factor
+		md3dDev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+
+		//alpha from texture
+		md3dDev->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
 	}
 	else {
 		md3dDev->SetTexture(1, NULL);
