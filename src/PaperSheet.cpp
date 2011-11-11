@@ -254,32 +254,73 @@ void PaperSheet::randomizeHole()
 
 void PaperSheet::createAlphaMask()
 {
-	D3DLOCKED_RECT rec;
-	D3DSURFACE_DESC desc;
-	IDirect3DSurface9* surf;
-	gTexture->GetSurfaceLevel(0, &surf);
-	surf->GetDesc(&desc);
-	surf->LockRect(&rec, NULL, 0);
+	D3DLOCKED_RECT sheetRec, holeRec;
+	D3DSURFACE_DESC sheetDesc, holeDesc;
+	IDirect3DSurface9 *sheetSurf, *holeSurf;
+	gTexture->GetSurfaceLevel(0, &sheetSurf);
+	holeTexture->GetSurfaceLevel(0, &holeSurf);
+	sheetSurf->GetDesc(&sheetDesc);
+	holeSurf->GetDesc(&holeDesc);
 
-	UINT width = desc.Width;
-	UINT height = desc.Height;
-	BYTE* buffer = (BYTE*)(rec.pBits);
+	sheetSurf->LockRect(&sheetRec, NULL, 0);
+	holeSurf->LockRect(&holeRec, NULL, 0);
 
-	for (UINT y = 0; y < height*4; ++y) {		// Multiply by 4 for some reason
-		for (UINT x = 0; x < width; ++x) {
-			DWORD index = (x * 4) + (y * rec.Pitch/4);
-			if (index % 10 == 0)	// TODO: Remove
-			//DWORD index = (y * rec.Pitch/4) + x;
+	UINT sheetWidth = sheetDesc.Width;
+	UINT sheetHeight = sheetDesc.Height;
+	UINT holeWidth = holeDesc.Width;
+	UINT holeHeight = holeDesc.Height;
+	BYTE* sbuffer = (BYTE*)(sheetRec.pBits);
+	BYTE* hbuffer = (BYTE*)(holeRec.pBits);
+
+	// For some reason the y value needs to be multiplied by 4
+	const int margin = 25;	// distance from edge
+	UINT startingY = 0;//rand() % (sheetHeight - holeHeight - margin) + margin;
+	UINT startingX = 0;//rand() % (sheetWidth - holeWidth - margin) + margin;
+
+	int rowNum = 0;
+	
+	for (UINT y = startingY; y < (startingY + holeHeight); ++y) {		// Multiply by 4 for some reason
+		for (UINT x = startingX; x < startingX + holeWidth; ++x) {
+			DWORD sIndex = (x * 4) + (y * sheetRec.Pitch/4) ;//+ (rowNum * sheetWidth * 3);
+			DWORD hIndex = ((x - startingX) * 4) + ((y - startingY) * holeRec.Pitch /4);
 			//buffer[index] = (BYTE) 0;		// blue
 			//buffer[index+1] = (BYTE) 0;	// green
 			//buffer[index+2] = (BYTE) 0;	// red
+			
+			// since the hole is grayscale, RGB values should all be the same, so 255 = black, 0 = white
+			sbuffer[sIndex+3] = (BYTE)hbuffer[hIndex];		// Alpha
+		}
+		rowNum++;
+	}
+	
+	/*
+	for (UINT y = 0; y < sheetHeight ; ++y) {		// Multiply by 4 for some reason
+		for (UINT x = 0; x < sheetWidth; ++x) {
+			DWORD index = (x * 4) + (y * sheetRec.Pitch/4) + (rowNum * sheetWidth * 3);
+			sbuffer[index] = (BYTE) 255;		// blue
+			sbuffer[index+1] = (BYTE) 0;	// green
+			sbuffer[index+2] = (BYTE) 0;	// red
+			sbuffer[index+3] = (BYTE)255;		// Alpha
+		}
+		rowNum++;
+	}*/
+	
+	holeSurf->UnlockRect();
+	sheetSurf->UnlockRect();
+
+	/*
+	FYI To loop through every pixel:
+	for (UINT y = 0; y < sheetHeight * 4; ++y) {		// Multiply by 4 for some reason
+		for (UINT x = 0; x < sheetWidth; ++x) {
+			DWORD index = (x * 4) + (y * sheetRec.Pitch/4);
+			buffer[index] = (BYTE) 0;		// blue
+			buffer[index+1] = (BYTE) 0;	// green
+			buffer[index+2] = (BYTE) 0;	// red
 			buffer[index+3] = (BYTE)0;		// Alpha
 		}
 	}
 	
-
-	surf->UnlockRect();
-	
+	*/
 	/*
 	// TODO: Fix this as it is is broken!
 	D3DSURFACE_DESC desc;
