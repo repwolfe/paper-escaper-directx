@@ -279,16 +279,12 @@ void PaperSheet::createAlphaMask()
 
 	int rowNum = 0;
 	
-	for (UINT y = startingY; y < (startingY + holeHeight); ++y) {		// Multiply by 4 for some reason
+	for (UINT y = startingY; y < startingY + holeHeight; ++y) {		// Multiply by 4 for some reason
 		for (UINT x = startingX; x < startingX + holeWidth; ++x) {
-			DWORD sIndex = (x * 4) + (y * sheetRec.Pitch/4) ;//+ (rowNum * sheetWidth * 3);
-			DWORD hIndex = ((x - startingX) * 4) + ((y - startingY) * holeRec.Pitch /4);
-			//buffer[index] = (BYTE) 0;		// blue
-			//buffer[index+1] = (BYTE) 0;	// green
-			//buffer[index+2] = (BYTE) 0;	// red
-			
+			DWORD sIndex = (x * 4) + (y * sheetRec.Pitch);
+			DWORD hIndex = ((x - startingX) * 4) + ((y - startingY) * holeRec.Pitch);
 			// since the hole is grayscale, RGB values should all be the same, so 255 = black, 0 = white
-			sbuffer[sIndex+3] = (BYTE)hbuffer[hIndex];		// Alpha
+			sbuffer[sIndex+3] = (BYTE)0;//(BYTE)hbuffer[hIndex];		// Alpha
 		}
 		rowNum++;
 	}
