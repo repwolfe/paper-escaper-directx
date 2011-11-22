@@ -71,7 +71,7 @@ myGame::~myGame(void)
 	delete previous;
 	delete floor;
 
-	PaperSheet::releaseTextures();
+	PaperSheet::releaseHole();
 	PaperSheet::releaseVertices();
 }
 
@@ -254,8 +254,11 @@ int myGame::initGame(void)
 						"Courier",	// typeface “Courier"
 						&font); 
 
+	md3dDev->SetRenderState(D3DRS_CULLMODE,D3DCULL_CCW);
+	md3dDev->SetRenderState(D3DRS_ZENABLE,D3DZB_TRUE);
+
 	PaperSheet::setupVertices();
-	PaperSheet::loadTextures();
+	PaperSheet::loadHole();
 
 	// Set up floor
 	floor = new PaperSheet();

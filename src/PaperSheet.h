@@ -35,8 +35,8 @@ public:
 
 	static void setupVertices();
 	static void releaseVertices();
-	static void loadTextures();
-	static void releaseTextures();
+	static void loadHole();
+	static void releaseHole();
 
 	void setPitch(float newValue);
 	void setFloor();
@@ -57,8 +57,8 @@ private:
 	static IDirect3DVertexDeclaration9* paperDecl;
 	static const D3DXVECTOR3 _sharedPosition;
 
-	static LPDIRECT3DTEXTURE9* textures;				// possible textures to use for sheet
-	LPDIRECT3DTEXTURE9 gTexture;			// current sheet texture
+	LPDIRECT3DTEXTURE9 frontTexture;					// current front texture
+	LPDIRECT3DTEXTURE9 backTexture;						// current back texture
 	static LPDIRECT3DTEXTURE9 holeTexture;
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
