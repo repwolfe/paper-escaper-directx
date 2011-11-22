@@ -53,7 +53,7 @@ myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
 	textBox.top = 15;
 	textBox.left = 15;
 	textBox.bottom = textBox.top + fontHeight * 8;
-	textBox.right = textBox.left + 250;
+	textBox.right = textBox.left + 350;
 }
 
 myGame::~myGame(void)
@@ -140,7 +140,7 @@ int myGame::updateGameState(long time)
 		delete previous;						// delete the previously stored sheet
 		previous = sheets.back();
 		sheets.pop_back();
-		sheets.push_front(new PaperSheet());	// add a new sheet
+		sheets.push_front(new PaperSheet(true));	// add a new sheet
 		sheets.back()->startRotating();			// start rotating the new last sheet
 	}
 
@@ -163,32 +163,14 @@ int myGame::renderFrame(int time)
 	float rad = 0;
 	D3DXMATRIX worldMat, viewMat, matTransform, matProjection, matScale, matTranslate,  matRotation;
 
-
-	//// set up the camera location
-	//D3DXMatrixLookAtLH(&viewMat, 
-	//&D3DXVECTOR3(40.0f, 40.0f, 40.0f), // camera loc
-	//&D3DXVECTOR3(150.0f, 0.0f, -150.0f),  // look-at target 
-	//&D3DXVECTOR3(0.0f, 1.0f, 0.0f)); // up Veotor
-	//D3DXMatrixLookAtLH(&viewMat,&D3DXVECTOR3(50,1000,50), &D3DXVECTOR3(500,0,500), &D3DXVECTOR3(0,1,0));
-
-
 	// set the camera matrix
 	cam.getViewMatrix(&viewMat);  // nuss1
 	// inform direct3d about the view transformation
 	rc = md3dDev->SetTransform(D3DTS_VIEW,&viewMat);
 
-
-	//// set up the projection transformation
-	//D3DXMatrixPerspectiveFovLH(&matProjection,  
-	//	D3DXToRadian(80),			// field of view
-	//	400/300, 					// aspect ratio
-	//	1.0f, 1500.0f); 			// near and far planes
-
 	getProjMat(&matProjection);
 	// inform direc3d about the proejctions tranfsormation
 	md3dDev->SetTransform(D3DTS_PROJECTION, &matProjection); 
-
-
 
 	// clear the window to a deep blue
 	rc = md3dDev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(50, 50, 50), 1.0f, 0);
@@ -211,12 +193,17 @@ int myGame::renderFrame(int time)
 		previous->render(time);
 	}
 
-	// Draw score
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
 	bool colliding = false;		// TODO: Replace with real value
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d", (int)camLoc.x, (int)camLoc.y, (int)camLoc.z, colliding);
-	font->DrawText(NULL, text, -1, &textBox, DT_CENTER | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nHole Position: %f, %f", 
+			(int)camLoc.x,
+			(int)camLoc.y,
+			(int)camLoc.z,
+			sheets.back()->isInHole(camLoc.x, camLoc.y),
+			sheets.back()->getHoleCenter().x,
+			sheets.back()->getHoleCenter().y);
+	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
 
@@ -261,14 +248,14 @@ int myGame::initGame(void)
 	PaperSheet::loadHole();
 
 	// Set up floor
-	floor = new PaperSheet();
-	floor->setPitch(270.0f);		// have it flat on ground
+	floor = new PaperSheet(false);
+	floor->setPitch(90.0f);		// have it flat on ground
 	floor->setFloor();
 
 	// Set up sheets
 	for (int i = 0; i < 4; ++i)
 		{
-			sheets.push_back(new PaperSheet());
+			sheets.push_back(new PaperSheet(true));
 		}
 
 	sheets.back()->startRotating();
