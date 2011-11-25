@@ -39,8 +39,9 @@ public:
 	void setPitch(float newValue);
 	void setFloor();
 
-	bool isInHole(float x, float y);
+	D3DXVECTOR2 isInHole(float x, float y);
 	D3DXVECTOR2 getHoleCenter();
+	D3DXVECTOR2 getHoleCenterPixel();
 	
 	static const float sharedPitch;
 	static const float paperRatio;	// paper ratio
@@ -62,7 +63,8 @@ private:
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
 
-	D3DXVECTOR2 holeCenter;		// The pixel location of the center of the hole on the sheet texture
+	D3DXVECTOR2 holeCenter;		// The location of the center of the hole on the quad (assuming top left is 0,0)
+	D3DXVECTOR2 holeCenterPixel;
 	UINT holeHeight;			// the height of the hole on the sheet texture
 	UINT holeWidth;			// the width of the hole on the sheet texture
 

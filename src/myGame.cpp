@@ -195,14 +195,17 @@ int myGame::renderFrame(int time)
 
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
+	D3DXVECTOR2 holeCenter = sheets.back()->isInHole(camLoc.x, camLoc.z);
+	D3DXVECTOR2 holeCenterPixel = sheets.back()->getHoleCenterPixel();
 	bool colliding = false;		// TODO: Replace with real value
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nHole Position: %f, %f", 
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d,%d\nHole Position: %f, %f", 
 			(int)camLoc.x,
 			(int)camLoc.y,
 			(int)camLoc.z,
-			sheets.back()->isInHole(camLoc.x, camLoc.y),
-			sheets.back()->getHoleCenter().x,
-			sheets.back()->getHoleCenter().y);
+			(int)holeCenter.x,
+			(int)holeCenter.y,
+			holeCenterPixel.x,
+			holeCenterPixel.y);
 	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
@@ -224,7 +227,7 @@ int myGame::initGame(void)
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
 	cam.setBoundingBox(0 - (PaperSheet::sharedScaleX / 2), (PaperSheet::sharedScaleX / 2), 0 - (PaperSheet::sharedScaleZ / 2), (PaperSheet::sharedScaleZ / 2));
 	// initialize the projection matrix
-	setProj(1.0,5000.0,D3DXToRadian(80),((float) this->mWndWidth)/this->mWndHeight);
+	setProj(1.0,10000.0,D3DXToRadian(80),((float) this->mWndWidth)/this->mWndHeight);
 	
 	// Set up the font
 	 D3DXCreateFont(md3dDev,
