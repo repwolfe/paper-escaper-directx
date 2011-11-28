@@ -54,6 +54,7 @@ public:
 	int updateSpeed(float speed);
 	float getSpeed(void);
 	int setBoundingBox(float minx, float maxx, float minz, float maxz);
+	void setDeveloperMode();
 
 
 private:
@@ -69,4 +70,5 @@ public:
 	D3DMATRIX * getViewMatrix(D3DXMATRIX * viewMatrix);
 	float speed, minx, maxx,  minz,  maxz;
 	// change the speed of the camera motion
+	bool devMode;
 };

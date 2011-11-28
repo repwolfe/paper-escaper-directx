@@ -127,6 +127,11 @@ int myGame::updateGameState(long time)
 			cam.moveRight(-5.0f); 
 			rc = 0;
 		}
+		if (mInput->keyboardPressed(DIK_P)) {
+			// move write
+			cam.setDeveloperMode();
+			rc = 0;
+		}
 	}
 
 	std::list<PaperSheet*>::const_iterator iter = sheets.begin();

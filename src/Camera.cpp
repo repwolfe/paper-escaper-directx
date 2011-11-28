@@ -48,7 +48,7 @@ Return:
 */
 
 Camera::Camera(void): position(0.0,0.0,-50.0), lookAtVector(0.0,0.0,1.0), upVector(0.0,1.0,0.0)
-, speed(0)
+	, speed(0),devMode(false)
 {
 
 }
@@ -86,7 +86,8 @@ Return:
 int Camera::roll(float angleDeg)
 {
 	//removed roll
-	/*float angleRad = D3DXToRadian(angleDeg);
+	if(!devMode){
+	float angleRad = D3DXToRadian(angleDeg);
 	D3DXVECTOR3 rotVector(0.0,0.0,0.0);
 
 
@@ -94,8 +95,8 @@ int Camera::roll(float angleDeg)
 	rotVector = lookAtVector;
 
 	updateOrientation(rotVector, angleRad);
-
-	*/
+	}
+	
 	return 0;
 	
 }
@@ -317,9 +318,12 @@ D3DXVECTOR3 Camera::moveForward(float numUnits)
 {
 	D3DXVECTOR3 vec;
 	D3DXVec3Normalize(&vec, &lookAtVector);	// make vec length 1
-	vec.y = 0;
+	if(!devMode){
+		vec.y = 0;
+	}
 	D3DXVec3Normalize(&vec, &vec);
 	position += vec * numUnits;				// add numUnits lengthed vec
+	if(!devMode){
 	if(position.x > maxx){
 		position.x = maxx;
 	}else if(position.x < minx){
@@ -329,6 +333,7 @@ D3DXVECTOR3 Camera::moveForward(float numUnits)
 		position.z = maxz;
 	}else if(position.z < minz){
 		position.z = minz;
+	}
 	}
 	return (position);
 }
@@ -338,8 +343,11 @@ D3DXVECTOR3 Camera::moveRight(float numUnits)
 	D3DXVECTOR3 vec;
 	//D3DXVec3Normalize(&vec, &lookAtVector);	// make vec length 1
 	D3DXVec3Cross(&vec, &lookAtVector, &upVector);
-	vec.y = 0;
+	if(!devMode){
+		vec.y = 0;
+	}
 	position += vec * numUnits;				// add numUnits lengthed vec
+	if(!devMode){
 	if(position.x > maxx){
 		position.x = maxx;
 	}else if(position.x < minx){
@@ -349,6 +357,7 @@ D3DXVECTOR3 Camera::moveRight(float numUnits)
 		position.z = maxz;
 	}else if(position.z < minz){
 		position.z = minz;
+	}
 	}
 	return (position);
 }
@@ -449,4 +458,9 @@ int Camera::setBoundingBox(float BBminx, float BBmaxx, float BBminz, float BBmax
 	minz = BBminz;
 	maxz = BBmaxz;
 	return 0;
+}
+
+void Camera::setDeveloperMode(){
+	this->devMode = true;
+
 }
