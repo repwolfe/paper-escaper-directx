@@ -320,6 +320,16 @@ D3DXVECTOR3 Camera::moveForward(float numUnits)
 	vec.y = 0;
 	D3DXVec3Normalize(&vec, &vec);
 	position += vec * numUnits;				// add numUnits lengthed vec
+	if(position.x > maxx){
+		position.x = maxx;
+	}else if(position.x < minx){
+		position.x = minx;
+	}
+	if(position.z > maxz){
+		position.z = maxz;
+	}else if(position.z < minz){
+		position.z = minz;
+	}
 	return (position);
 }
 
@@ -337,7 +347,7 @@ D3DXVECTOR3 Camera::moveRight(float numUnits)
 	}
 	if(position.z > maxz){
 		position.z = maxz;
-	}else if(position.x < minz){
+	}else if(position.z < minz){
 		position.z = minz;
 	}
 	return (position);

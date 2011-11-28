@@ -225,7 +225,7 @@ int myGame::initGame(void)
 	// set the intial location of the camera
 	cam.setCamera(D3DXVECTOR3(0,10,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
-	cam.setBoundingBox(0 - (PaperSheet::sharedScaleX / 2), (PaperSheet::sharedScaleX / 2), 0 - (PaperSheet::sharedScaleZ / 2), (PaperSheet::sharedScaleZ / 2));
+	cam.setBoundingBox(10 - (PaperSheet::sharedScaleX ), (PaperSheet::sharedScaleX - 10), 0 - (PaperSheet::sharedScaleY ), (PaperSheet::sharedScaleY - 30));
 	// initialize the projection matrix
 	setProj(1.0,10000.0,D3DXToRadian(80),((float) this->mWndWidth)/this->mWndHeight);
 	
