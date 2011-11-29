@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "PaperSheet.h"
+#include <stdio.h>
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 LPDIRECT3DTEXTURE9 PaperSheet::holeTexture = NULL;
@@ -29,9 +30,22 @@ PaperSheet::PaperSheet(bool shouldHaveHole)
 	floor	 = false;
 	this->shouldHaveHole = shouldHaveHole;
 
-	// Todo: load random picture
-	D3DXCreateTextureFromFile(md3dDev, "sheet.png", &frontTexture);
-	D3DXCreateTextureFromFile(md3dDev, "sheet2.png", &backTexture);
+	// Load random textures for front and back
+	int frontNum = rand() % 9 + 1;
+	int backNum = frontNum;
+
+	// Make sure front and back aren't the same
+	while (backNum == frontNum) {
+		backNum = rand() % 9 + 1;
+	}
+
+	char frontFileName[11];
+	char backFileName[11];
+	sprintf(frontFileName, "sheet%d.png", frontNum);
+	sprintf(backFileName, "sheet%d.png", backNum);
+
+	D3DXCreateTextureFromFile(md3dDev, frontFileName, &frontTexture);
+	D3DXCreateTextureFromFile(md3dDev,backFileName, &backTexture);
 
 	initGeom();
 }
