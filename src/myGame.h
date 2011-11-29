@@ -61,8 +61,12 @@ public:
 	Camera cam;	
 	
 private:
+	bool gameStarted;
+
 	std::list<PaperSheet*> sheets;
-	PaperSheet* previous;
+	PaperSheet* previous;			// store the previous 2 sheets so one gets deleted
+	PaperSheet* previous2;			// while the other stays so when the sheet falls it you can see
+									// the previous page in the hole
 	PaperSheet* floor;
 	RECT textBox;
 	LPD3DXFONT font; // font to be used

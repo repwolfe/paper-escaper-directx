@@ -48,12 +48,14 @@
 #include <stdio.h>
 
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, font(NULL), previous(NULL), floor(NULL), fontHeight(15)
+, font(NULL), previous2(NULL), previous(NULL), floor(NULL), fontHeight(15)
 {
 	textBox.top = 15;
 	textBox.left = 15;
 	textBox.bottom = textBox.top + fontHeight * 8;
 	textBox.right = textBox.left + 350;
+
+	gameStarted = false;
 }
 
 myGame::~myGame(void)
@@ -69,6 +71,7 @@ myGame::~myGame(void)
 	}
 
 	delete previous;
+	delete previous2;
 	delete floor;
 
 	PaperSheet::releaseHole();
@@ -79,6 +82,15 @@ myGame::~myGame(void)
 
 int myGame::updateGameState(long time)
 {
+	static int timer = 0;
+	if (!gameStarted ) {
+		if (timer == 2000) {
+			gameStarted = true;
+		}
+		else {
+			++timer;
+		}
+	}
 	int rc = 0;
 	// poll the input
 	mInput->poll();
@@ -132,23 +144,29 @@ int myGame::updateGameState(long time)
 			cam.setDeveloperMode();
 			rc = 0;
 		}
+		if (mInput->keyboardPressed(DIK_L)) {
+			// Start game early
+			gameStarted = true;
+		}
 	}
 
-	std::list<PaperSheet*>::const_iterator iter = sheets.begin();
-	while (iter != sheets.end()) {
-		(*iter)->updateState();
-		++iter;
-	}
+	if (gameStarted) {
+		std::list<PaperSheet*>::const_iterator iter = sheets.begin();
+		while (iter != sheets.end()) {
+			(*iter)->updateState();
+			++iter;
+		}
 
-	// Check if last sheet is done rotating
-	if (sheets.back()->shouldDelete()) {
-		delete previous;						// delete the previously stored sheet
-		previous = sheets.back();
-		sheets.pop_back();
-		sheets.push_front(new PaperSheet(true));	// add a new sheet
-		sheets.back()->startRotating();			// start rotating the new last sheet
+		// Check if last sheet is done rotating
+		if (sheets.back()->shouldDelete()) {
+			delete previous2;						// delete the previously stored sheet
+			previous2 = previous;
+			previous = sheets.back();
+			sheets.pop_back();
+			sheets.push_front(new PaperSheet(true));	// add a new sheet
+			sheets.back()->startRotating();			// start rotating the new last sheet
+		}
 	}
-
 	// move the camera
 	cam.moveForward(cam.getSpeed());
 
@@ -192,6 +210,10 @@ int myGame::renderFrame(int time)
 	while (iter != sheets.end()) {
 		(*iter)->render(time);
 		++iter;
+	}
+
+	if (previous2 != NULL) {
+		previous2->render(time);
 	}
 
 	if (previous != NULL) {

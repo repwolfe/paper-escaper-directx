@@ -16,7 +16,8 @@ const D3DXVECTOR3 PaperSheet::_sharedPosition
 	= D3DXVECTOR3(0, sharedScaleY, sharedScaleX * 0.75f);	// move the sheet so the origin is the middle
 															// of where the sheet falls
 
-PaperSheet::PaperSheet(bool shouldHaveHole) 
+PaperSheet::PaperSheet(bool shouldHaveHole)
+	: frontTexture(NULL), backTexture(NULL)
 {
 	mPitch = sharedPitch;
 	mScaleY = sharedScaleY;
@@ -30,22 +31,28 @@ PaperSheet::PaperSheet(bool shouldHaveHole)
 	floor	 = false;
 	this->shouldHaveHole = shouldHaveHole;
 
-	// Load random textures for front and back
-	int frontNum = rand() % 9 + 1;
-	int backNum = frontNum;
+	if (shouldHaveHole) {
+		// Load random textures for front and back
+		int frontNum = rand() % 9 + 1;
+		int backNum = frontNum;
 
-	// Make sure front and back aren't the same
-	while (backNum == frontNum) {
-		backNum = rand() % 9 + 1;
+		// Make sure front and back aren't the same
+		while (backNum == frontNum) {
+			backNum = rand() % 9 + 1;
+		}
+
+		char frontFileName[11];
+		char backFileName[11];
+		sprintf(frontFileName, "sheet%d.png", frontNum);
+		sprintf(backFileName, "sheet%d.png", backNum);
+
+		D3DXCreateTextureFromFile(md3dDev, frontFileName, &frontTexture);
+		D3DXCreateTextureFromFile(md3dDev,backFileName, &backTexture);
 	}
-
-	char frontFileName[11];
-	char backFileName[11];
-	sprintf(frontFileName, "sheet%d.png", frontNum);
-	sprintf(backFileName, "sheet%d.png", backNum);
-
-	D3DXCreateTextureFromFile(md3dDev, frontFileName, &frontTexture);
-	D3DXCreateTextureFromFile(md3dDev,backFileName, &backTexture);
+	else {
+		// Render the floor page texture 
+		D3DXCreateTextureFromFile(md3dDev, "sheet.png", &backTexture);
+	}
 
 	initGeom();
 }
@@ -53,8 +60,8 @@ PaperSheet::PaperSheet(bool shouldHaveHole)
 PaperSheet::~PaperSheet() {
 	mVtxBuf->Release();
 	paperDecl->Release();
-	frontTexture->Release();
-	backTexture->Release();
+	if (frontTexture) {	frontTexture->Release(); }
+	if (backTexture) { backTexture->Release(); }
 }
 
 void PaperSheet::setupVertices()
@@ -70,10 +77,10 @@ void PaperSheet::setupVertices()
 
 	// Back Face (6-5-8-7)
 	// Even though the vertices are 5 6 7 8, it renders the texture in this order: 5, 7, 6, 8
-	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color, D3DXVECTOR2(0,0));
-	vertices[5]		= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color, D3DXVECTOR2(1,0));
-	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color, D3DXVECTOR2(0,1));
-	vertices[7]		= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color, D3DXVECTOR2(1,1));
+	vertices[4]		= paperVertex(D3DXVECTOR3( 1.0f,  1.0f,  1.0f), color, D3DXVECTOR2(1,1));
+	vertices[5]		= paperVertex(D3DXVECTOR3(-1.0f,  1.0f,  1.0f), color, D3DXVECTOR2(0,1));
+	vertices[6]		= paperVertex(D3DXVECTOR3( 1.0f, -1.0f,  1.0f), color, D3DXVECTOR2(1,0));
+	vertices[7]		= paperVertex(D3DXVECTOR3(-1.0f, -1.0f,  1.0f), color, D3DXVECTOR2(0,0));
 }
 
 void PaperSheet::releaseVertices()
