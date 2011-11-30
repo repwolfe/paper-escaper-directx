@@ -218,13 +218,11 @@ void PaperSheet::createAlphaMask()
 		}
 	}
 	
-	// TODO: FIX THIS SO ITS RIGHT! :) 
-	for (UINT y = startingY; y < startingY + holeHeight; ++y) {
-		//for (UINT x = backWidth - startingX - holeWidth; x < backWidth - startingX; ++x) {
+	// Flip the y so the hole is in the right spot on the other side
+	for (UINT y = backHeight - startingY - holeHeight; y < backHeight - startingY; ++y) {
 		for (UINT x = startingX; x < startingX + holeWidth; ++x) {
 			DWORD index = (x * 4) + (y * frontRec.Pitch);
-			//DWORD hIndex = ((x + startingX + holeWidth - backWidth) * 4) + ((y - startingY) * holeRec.Pitch);
-			DWORD hIndex = ((x - startingX) * 4) + ((y - startingY) * holeRec.Pitch);
+			DWORD hIndex = ((x - startingX) * 4) + ((y - backHeight + startingY + holeHeight) * holeRec.Pitch);
 			// since the hole is grayscale, RGB values should all be the same, so 255 = black, 0 = white
 			backBuffer[index+3] = (BYTE)holeBuffer[hIndex];		// Alpha
 		}
@@ -286,7 +284,7 @@ int PaperSheet::render(int time)
 
 int PaperSheet::updateState() {
 	if (rotating) {
-		mPitch += 0.2f;
+		mPitch += 0.5f;
 		if (mPitch >= 90.0f) {
 			rotating = false;
 			deleteMe = true;
