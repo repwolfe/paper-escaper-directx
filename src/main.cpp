@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "main.h"
 #include "myGame.h"
+#include <time.h>
 
 #define MAX_LOADSTRING 100
 
@@ -22,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
                    PSTR		 pCmdLine,
                    int		 nCmdShow)
 {
-
+	srand ( (unsigned int) time(NULL) );
 	// create the game
 	myGame game(hInstance, "Falling Paper! ");
 

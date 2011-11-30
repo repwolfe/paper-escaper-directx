@@ -2,6 +2,7 @@
 
 #include "PaperSheet.h"
 #include <stdio.h>
+#include <math.h>
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
 LPDIRECT3DTEXTURE9 PaperSheet::holeTexture = NULL;
@@ -9,12 +10,11 @@ paperVertex* PaperSheet::vertices = new paperVertex[VTX_NUM];
 
 const float PaperSheet::sharedPitch = -90.0f;
 const float PaperSheet::paperRatio = 11 / 8.5f;	// paper ratio
-const float PaperSheet::sharedScaleY = 500.0f;
+const float PaperSheet::sharedScaleY = 1000;	// The amount to scale the sheet in both directions
 const float PaperSheet::sharedScaleX = sharedScaleY * paperRatio;
 const float PaperSheet::sharedScaleZ = 0.5f;
-const D3DXVECTOR3 PaperSheet::_sharedPosition
-	= D3DXVECTOR3(0, sharedScaleY, sharedScaleX * 0.75f);	// move the sheet so the origin is the middle
-															// of where the sheet falls
+const D3DXVECTOR3 PaperSheet::_sharedPosition = D3DXVECTOR3(0, sharedScaleY,sharedScaleY);		// move the sheet so the origin is the middle
+																								// of where the sheet falls
 
 PaperSheet::PaperSheet(bool shouldHaveHole)
 	: frontTexture(NULL), backTexture(NULL)
@@ -190,14 +190,21 @@ void PaperSheet::createAlphaMask()
 
 	// Get the pixel location on the texture of the hole
 	holeCenter = holeCenterPixel = D3DXVECTOR2(startingX + holeWidth / 2.0f, startingY + holeHeight / 2.0f);
-		
+	
+	// Make bottom left the origin of holeCenter
+	holeCenter.y = frontHeight - holeCenter.y;
+
 	// Convert it to texture coordinates UV (out of 1)
 	holeCenter.x /= frontWidth;
 	holeCenter.y /= frontHeight;
 
-	// Convert it to where it would be situated on the quad (using scaleX and scaleY)
-	holeCenter.x *= PaperSheet::sharedScaleX;
-	holeCenter.y *= PaperSheet::sharedScaleY;
+	// Convert it to where it would be situated on the quad (using scaleX * 2 and scaleY * 2)
+	holeCenter.x *= PaperSheet::sharedScaleX * 2;
+	holeCenter.y *= PaperSheet::sharedScaleY * 2;
+
+	// Reflect and translate the pixel location to be related to the world origin
+	holeWorldLocation.x = holeCenter.x - PaperSheet::sharedScaleX;
+	holeWorldLocation.y = -holeCenter.y + PaperSheet::sharedScaleY;
 	
 	this->holeHeight = holeHeight;
 	this->holeWidth = holeWidth;
@@ -211,10 +218,13 @@ void PaperSheet::createAlphaMask()
 		}
 	}
 	
+	// TODO: FIX THIS SO ITS RIGHT! :) 
 	for (UINT y = startingY; y < startingY + holeHeight; ++y) {
-		for (UINT x = backWidth - startingX - holeWidth; x < backWidth - startingX; ++x) {
+		//for (UINT x = backWidth - startingX - holeWidth; x < backWidth - startingX; ++x) {
+		for (UINT x = startingX; x < startingX + holeWidth; ++x) {
 			DWORD index = (x * 4) + (y * frontRec.Pitch);
-			DWORD hIndex = ((x + startingX + holeWidth - backWidth) * 4) + ((y - startingY) * holeRec.Pitch);
+			//DWORD hIndex = ((x + startingX + holeWidth - backWidth) * 4) + ((y - startingY) * holeRec.Pitch);
+			DWORD hIndex = ((x - startingX) * 4) + ((y - startingY) * holeRec.Pitch);
 			// since the hole is grayscale, RGB values should all be the same, so 255 = black, 0 = white
 			backBuffer[index+3] = (BYTE)holeBuffer[hIndex];		// Alpha
 		}
@@ -276,8 +286,8 @@ int PaperSheet::render(int time)
 
 int PaperSheet::updateState() {
 	if (rotating) {
-		mPitch += 0.5f;
-		if (mPitch == 90.0f) {
+		mPitch += 0.2f;
+		if (mPitch >= 90.0f) {
 			rotating = false;
 			deleteMe = true;
 		}
@@ -308,22 +318,11 @@ void PaperSheet::setFloor() {
  * pixels of the hole in the sheet
  * false otherwise
  */
-D3DXVECTOR2 PaperSheet::isInHole(float x, float y) {
+bool PaperSheet::isInHole(float x, float y) {
 	// Determine if the position vector is in the area of the hole
-
-	D3DXVECTOR2 holeWorldLocation(holeCenter);								// start at location on quad
-	//holeWorldLocation.y = PaperSheet::sharedScaleY - holeWorldLocation.y;	// invert the y location as the texture flipped
-
-	// move it so it has the proper origin
-	holeWorldLocation.x -= PaperSheet::sharedScaleX / 2.0f;
-	holeWorldLocation.y -= PaperSheet::sharedScaleY / 2.0f;
-
-	// The origin with respect to the texture is pointing down, while the origin of the world is pointing up
-	// So reverse the y coordinate of the hole with respect to the world
-	holeWorldLocation.y *= -1;
-
-	// TODO: Somehow convert world position into pixel position
-	return holeWorldLocation;
+	return (pow((x - holeWorldLocation.x),2) + 
+			pow((y - holeWorldLocation.y),2) 
+			<= pow((float)holeWidth,2));
 }
 
 D3DXVECTOR2 PaperSheet::getHoleCenter() {

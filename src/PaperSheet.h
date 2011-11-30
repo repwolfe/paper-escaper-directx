@@ -18,7 +18,7 @@ struct paperVertex {
 	}
 };
 
-class PaperSheet : GameObject
+class PaperSheet : public GameObject
 {
 public:
 	PaperSheet(bool shouldHaveHole);
@@ -39,7 +39,7 @@ public:
 	void setPitch(float newValue);
 	void setFloor();
 
-	D3DXVECTOR2 isInHole(float x, float y);
+	bool isInHole(float x, float y);
 	D3DXVECTOR2 getHoleCenter();
 	D3DXVECTOR2 getHoleCenterPixel();
 	
@@ -63,10 +63,11 @@ private:
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
 
-	D3DXVECTOR2 holeCenter;		// The location of the center of the hole on the quad (assuming top left is 0,0)
+	D3DXVECTOR2 holeCenter;			// The location of the center of the hole on the quad (assuming bottom left is 0,0)
 	D3DXVECTOR2 holeCenterPixel;
+	D3DXVECTOR2 holeWorldLocation;	// The location of the center of the hole in regards to the world coordinates
 	UINT holeHeight;			// the height of the hole on the sheet texture
-	UINT holeWidth;			// the width of the hole on the sheet texture
+	UINT holeWidth;				// the width of the hole on the sheet texture
 
 	bool rotating;
 	bool deleteMe;

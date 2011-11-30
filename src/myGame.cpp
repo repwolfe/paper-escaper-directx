@@ -222,17 +222,12 @@ int myGame::renderFrame(int time)
 
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
-	D3DXVECTOR2 holeCenter = sheets.back()->isInHole(camLoc.x, camLoc.z);
-	D3DXVECTOR2 holeCenterPixel = sheets.back()->getHoleCenterPixel();
-	bool colliding = false;		// TODO: Replace with real value
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d,%d\nHole Position: %f, %f", 
+	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d", 
 			(int)camLoc.x,
 			(int)camLoc.y,
 			(int)camLoc.z,
-			(int)holeCenter.x,
-			(int)holeCenter.y,
-			holeCenterPixel.x,
-			holeCenterPixel.y);
+			colliding);
 	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
