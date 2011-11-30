@@ -222,12 +222,18 @@ int myGame::renderFrame(int time)
 
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
-	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d", 
+	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z) && (colliding = (sheets.back()->mPitch) / 90 > ((-1 * cam.position.z) + 970) / 1970);
+	float pitch = sheets.back()->mPitch;
+	if(colliding && sheets.back()->mPitch > 60){ //if page is falling down and player is not in the 'collision' free hole check collision
+		colliding = (sheets.back()->mPitch - 60) / 20 > ((-1 * cam.position.z) + 970) / 1970;
+	}
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nSheet Pitch: %f, %f ", 
 			(int)camLoc.x,
 			(int)camLoc.y,
 			(int)camLoc.z,
-			colliding);
+			colliding,
+			sheets.back()->mPitch / 80,
+			((-1 * cam.position.z) + 970) / 1970);
 	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
@@ -245,7 +251,7 @@ int myGame::renderFrame(int time)
 int myGame::initGame(void)
 {
 	// set the intial location of the camera
-	cam.setCamera(D3DXVECTOR3(0,10,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
+	cam.setCamera(D3DXVECTOR3(0,300,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
 	cam.setBoundingBox(10 - (PaperSheet::sharedScaleX ), (PaperSheet::sharedScaleX - 10), 0 - (PaperSheet::sharedScaleY ), (PaperSheet::sharedScaleY - 30));
 	// initialize the projection matrix
