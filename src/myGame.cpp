@@ -155,6 +155,12 @@ int myGame::updateGameState(long time)
 			cam.position.y = 300;
 		}
 	}
+	}else{
+		if(mInput->keyboardPressed(DIK_R)){
+			dead = false;
+			gameStarted = true;
+			cam.position.y = 300;
+		}
 	}
 	if (gameStarted) {
 		std::list<PaperSheet*>::const_iterator iter = sheets.begin();
