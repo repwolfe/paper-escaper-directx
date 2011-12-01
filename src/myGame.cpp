@@ -48,7 +48,7 @@
 #include <stdio.h>
 
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, font(NULL), previous2(NULL), previous(NULL), floor(NULL), fontHeight(15)
+, font(NULL), previous2(NULL), previous(NULL), floor(NULL), fontHeight(15), levelCount(0), dead(false)
 {
 	textBox.top = 15;
 	textBox.left = 15;
@@ -86,6 +86,8 @@ int myGame::updateGameState(long time)
 	if (!gameStarted ) {
 		if (timer == 2000) {
 			gameStarted = true;
+			cam.position.y = 300;
+			return 0;
 		}
 		else {
 			++timer;
@@ -94,7 +96,7 @@ int myGame::updateGameState(long time)
 	int rc = 0;
 	// poll the input
 	mInput->poll();
-	
+	if(!dead){
 	// check if escape key was pressed
 	if (mInput->keyboardPressed(DIK_ESCAPE)) {
 		rc = 1;
@@ -147,9 +149,10 @@ int myGame::updateGameState(long time)
 		if (mInput->keyboardPressed(DIK_L)) {
 			// Start game early
 			gameStarted = true;
+			cam.position.y = 300;
 		}
 	}
-
+	}
 	if (gameStarted) {
 		std::list<PaperSheet*>::const_iterator iter = sheets.begin();
 		while (iter != sheets.end()) {
@@ -159,6 +162,7 @@ int myGame::updateGameState(long time)
 
 		// Check if last sheet is done rotating
 		if (sheets.back()->shouldDelete()) {
+			levelCount++;
 			delete previous2;						// delete the previously stored sheet
 			previous2 = previous;
 			previous = sheets.back();
@@ -226,14 +230,25 @@ int myGame::renderFrame(int time)
 	float pitch = sheets.back()->mPitch;
 	if(colliding && sheets.back()->mPitch > 60){ //if page is falling down and player is not in the 'collision' free hole check collision
 		colliding = (sheets.back()->mPitch - 60) / 20 > ((-1 * cam.position.z) + 970) / 1970;
+		
+		if(colliding){
+			dead = true;
+			if(cam.position.y > 10){
+				cam.position.y -= 10;	
+			}else {
+				gameStarted = false; //stops the pages from turning
+				return 0;
+			}
+			
+		}
+
 	}
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nSheet Pitch: %f, %f ", 
+	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nLevel: %d", 
 			(int)camLoc.x,
 			(int)camLoc.y,
 			(int)camLoc.z,
 			colliding,
-			sheets.back()->mPitch / 80,
-			((-1 * cam.position.z) + 970) / 1970);
+			levelCount);
 	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 	md3dDev->EndScene();    // ends the 3D scene
@@ -251,7 +266,10 @@ int myGame::renderFrame(int time)
 int myGame::initGame(void)
 {
 	// set the intial location of the camera
-	cam.setCamera(D3DXVECTOR3(0,300,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
+	cam.setCamera(D3DXVECTOR3(400,1300,0)/*D3DXVECTOR3(-40,70,-40)*/, D3DXVECTOR3(0,0,50), D3DXVECTOR3(0,1,0));
+	cam.upVector.x = -1;
+	cam.upVector.y = -1;
+	cam.upVector.z = 0;
 	//cam.setCamera(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,1,0));
 	cam.setBoundingBox(10 - (PaperSheet::sharedScaleX ), (PaperSheet::sharedScaleX - 10), 0 - (PaperSheet::sharedScaleY ), (PaperSheet::sharedScaleY - 30));
 	// initialize the projection matrix

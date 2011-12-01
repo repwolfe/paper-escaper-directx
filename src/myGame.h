@@ -62,7 +62,7 @@ public:
 	
 private:
 	bool gameStarted;
-
+	bool dead; //if the player has collided with a page it is true
 	std::list<PaperSheet*> sheets;
 	PaperSheet* previous;			// store the previous 2 sheets so one gets deleted
 	PaperSheet* previous2;			// while the other stays so when the sheet falls it you can see
@@ -71,4 +71,5 @@ private:
 	RECT textBox;
 	LPD3DXFONT font; // font to be used
 	int fontHeight;
+	int levelCount;
 };
