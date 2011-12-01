@@ -74,7 +74,7 @@ myGame::~myGame(void)
 	delete previous2;
 	delete floor;
 
-	PaperSheet::releaseHole();
+	PaperSheet::releaseHoles();
 	PaperSheet::releaseVertices();
 }
 
@@ -297,7 +297,7 @@ int myGame::initGame(void)
 	md3dDev->SetRenderState(D3DRS_ZENABLE,D3DZB_TRUE);
 
 	PaperSheet::setupVertices();
-	PaperSheet::loadHole();
+	PaperSheet::loadHoles();
 
 	// Set up floor
 	floor = new PaperSheet(false);

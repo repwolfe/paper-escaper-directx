@@ -5,7 +5,8 @@
 #include <math.h>
 
 IDirect3DVertexDeclaration9* PaperSheet::paperDecl = NULL;
-LPDIRECT3DTEXTURE9 PaperSheet::holeTexture = NULL;
+LPDIRECT3DTEXTURE9* PaperSheet::holeTextures = new LPDIRECT3DTEXTURE9[NUM_HOLES];
+
 paperVertex* PaperSheet::vertices = new paperVertex[VTX_NUM];
 
 const float PaperSheet::sharedPitch = -90.0f;
@@ -48,6 +49,10 @@ PaperSheet::PaperSheet(bool shouldHaveHole)
 
 		D3DXCreateTextureFromFile(md3dDev, frontFileName, &frontTexture);
 		D3DXCreateTextureFromFile(md3dDev,backFileName, &backTexture);
+		
+		// Choose random hole size
+		int holeNum = rand() % 3;
+		holeTexture = holeTextures[holeNum];
 	}
 	else {
 		// Render the floor page texture 
@@ -91,16 +96,20 @@ void PaperSheet::releaseVertices()
 /**
  * All sheets use the same hole texture as an alpha mask
  */
-void PaperSheet::loadHole()
+void PaperSheet::loadHoles()
 {
-	D3DXCreateTextureFromFile(md3dDev, "hole.png", &holeTexture);
+	D3DXCreateTextureFromFile(md3dDev, "hole1.png", &holeTextures[0]);
+	D3DXCreateTextureFromFile(md3dDev, "hole2.png", &holeTextures[1]);
+	D3DXCreateTextureFromFile(md3dDev, "hole3.png", &holeTextures[2]);
 	md3dDev->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	md3dDev->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 }
 
-void PaperSheet::releaseHole()
+void PaperSheet::releaseHoles()
 {
-	holeTexture->Release();
+	for (int i = 0; i < NUM_HOLES; ++i) {
+		holeTextures[i]->Release();
+	}
 }
 
 int PaperSheet::initGeom() {

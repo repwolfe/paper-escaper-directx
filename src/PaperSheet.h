@@ -5,6 +5,7 @@
 
 #define NUM_TRIANGLES 4			// 2 sides of a cube * 2 triangles per cube
 #define VTX_NUM NUM_TRIANGLES * 2
+#define NUM_HOLES 3
 
 struct paperVertex {
 	D3DXVECTOR3 pos;
@@ -33,8 +34,8 @@ public:
 
 	static void setupVertices();
 	static void releaseVertices();
-	static void loadHole();
-	static void releaseHole();
+	static void loadHoles();
+	static void releaseHoles();
 
 	void setPitch(float newValue);
 	void setFloor();
@@ -59,7 +60,8 @@ private:
 
 	LPDIRECT3DTEXTURE9 frontTexture;					// current front texture
 	LPDIRECT3DTEXTURE9 backTexture;						// current back texture
-	static LPDIRECT3DTEXTURE9 holeTexture;
+	static LPDIRECT3DTEXTURE9* holeTextures;			// all the possible hole textures
+	LPDIRECT3DTEXTURE9 holeTexture;						// the sheets chosen hole texture
 	static D3DXVECTOR3 texCenter;
 	static D3DXVECTOR3 texPos;
 
