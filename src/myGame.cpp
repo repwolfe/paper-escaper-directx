@@ -90,6 +90,9 @@ int myGame::updateGameState(long time)
 			return 0;
 		}
 		else {
+			if(cam.position.y > 300){
+				cam.position.y -= .5f;
+			}
 			++timer;
 		}
 	}
