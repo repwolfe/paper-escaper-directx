@@ -86,11 +86,11 @@ int myGame::updateGameState(long time)
 	if (!gameStarted ) {
 		if (timer == 2000) {
 			gameStarted = true;
-			cam.position.y = 300;
+			cam.position.y = 100;
 			return 0;
 		}
 		else {
-			if(cam.position.y > 300){
+			if(cam.position.y > 100){
 				cam.position.y -= .5f;
 			}
 			++timer;
@@ -152,14 +152,15 @@ int myGame::updateGameState(long time)
 		if (mInput->keyboardPressed(DIK_L)) {
 			// Start game early
 			gameStarted = true;
-			cam.position.y = 300;
+			cam.position.y = 100;
 		}
 	}
 	}else{
 		if(mInput->keyboardPressed(DIK_R)){
 			dead = false;
 			gameStarted = true;
-			cam.position.y = 300;
+			cam.position.y = 100;
+			levelCount = 1;
 		}
 	}
 	if (gameStarted) {
@@ -235,11 +236,15 @@ int myGame::renderFrame(int time)
 
 	char text[1024];
 	D3DXVECTOR3 camLoc = cam.getPosition();
-	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z) && (colliding = (sheets.back()->mPitch) / 90 > ((-1 * cam.position.z) + 970) / 1970);
+	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
 	float pitch = sheets.back()->mPitch;
-	if(colliding && sheets.back()->mPitch > 60){ //if page is falling down and player is not in the 'collision' free hole check collision
-		colliding = (sheets.back()->mPitch - 60) / 20 > ((-1 * cam.position.z) + 970) / 1970;
-		
+	if(colliding && pitch > 0){ //if page is falling down and player is not in the 'collision' free hole check collision
+		//colliding = sheets.back()->mPitch / 40 > ((-1 * cam.position.z) + cam.maxz) / cam.maxz;
+		colliding = (pitch - 20) / 70 > ((-1 * camLoc.z) + cam.maxz) / (1.5* cam.maxz);
+		D3DXVECTOR3 projection;
+		D3DXVECTOR3 sheetVector = D3DXVECTOR3(0, 2* PaperSheet::sharedScaleY, PaperSheet::sharedScaleY);
+		//todo implement 'real' collision
+		//sheets.back()->holeWorldLocation
 		if(colliding){
 			dead = true;
 			if(cam.position.y > 10){
