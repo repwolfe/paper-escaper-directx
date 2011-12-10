@@ -87,6 +87,7 @@ int myGame::updateGameState(long time)
 		if (timer == 2000) {
 			gameStarted = true;
 			cam.position.y = 100;
+			timer = 2001;
 			return 0;
 		}
 		else {
@@ -239,16 +240,44 @@ int myGame::renderFrame(int time)
 	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
 	float pitch = sheets.back()->mPitch;
 	if(colliding && pitch > 0){ //if page is falling down and player is not in the 'collision' free hole check collision
-		//colliding = sheets.back()->mPitch / 40 > ((-1 * cam.position.z) + cam.maxz) / cam.maxz;
-		colliding = (pitch - 20) / 70 > ((-1 * camLoc.z) + cam.maxz) / (1.5* cam.maxz);
-		D3DXVECTOR3 projection;
-		D3DXVECTOR3 sheetVector = D3DXVECTOR3(0, 2* PaperSheet::sharedScaleY, PaperSheet::sharedScaleY);
-		//todo implement 'real' collision
-		//sheets.back()->holeWorldLocation
-		if(colliding){
+		
+		/*
+		rotation around the x axis
+		y' = y*cos q - z*sin q
+		z' = y*sin q + z*cos q
+		x' = x
+		*/
+		float y = PaperSheet::sharedScaleY;
+		// Rotation
+		float radianPitch = D3DXToRadian(pitch);
+		D3DXVECTOR3 sheetVector = D3DXVECTOR3(0, y*cos(radianPitch), y*sin(radianPitch));
+		
+		/*
+		We use simmilar triangles to detect collision
+
+		     /|		P = player
+		    X |		E = edge of page (page falling clockwise)
+		   /| |		X = Point on the falling page above the player
+		  / | |		S = Spine of the book (The pages rotate around S)
+		 /  | |
+	   S/___P_E
+
+					When X's y coordinate is smaller than the player's a collision occurs
+		*/
+		//switch to a coordinate sytem centered at the spine of the book
+		D3DXVECTOR3 absCamLoc = cam.getPosition();
+		absCamLoc.x = 0; //ignore X
+
+		absCamLoc.z *= -1;
+		absCamLoc.z += y;
+
+		float sheetHeightAtPlayer = sheetVector.y / sheetVector.z * absCamLoc.z;
+		float buffer = 10;
+		colliding = sheetHeightAtPlayer < (camLoc.y + buffer);
+		if(colliding || dead){
 			dead = true;
-			if(cam.position.y > 10){
-				cam.position.y -= 10;	
+			if(cam.position.y > 20){
+				cam.position.y -= 20;	
 			}else {
 				gameStarted = false; //stops the pages from turning
 				return 0;
