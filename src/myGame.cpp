@@ -48,7 +48,7 @@
 #include <stdio.h>
 
 myGame::myGame(HINSTANCE hInstance, char* gameName):gameApp(hInstance, gameName)
-, font(NULL), previous2(NULL), previous(NULL), floor(NULL), fontHeight(15), levelCount(0), dead(false)
+, font(NULL), previous2(NULL), previous(NULL), floor(NULL), fontHeight(28), levelCount(0), dead(false)
 {
 	textBox.top = 15;
 	textBox.left = 15;
@@ -65,6 +65,13 @@ myGame::~myGame(void)
 		font = NULL;
 	}
 	
+	deleteAllPages();
+
+	PaperSheet::releaseHoles();
+	PaperSheet::releaseVertices();
+}
+
+void myGame::deleteAllPages() {
 	while (sheets.empty() == false) {
 		delete sheets.front();
 		sheets.pop_front();
@@ -73,11 +80,7 @@ myGame::~myGame(void)
 	delete previous;
 	delete previous2;
 	delete floor;
-
-	PaperSheet::releaseHoles();
-	PaperSheet::releaseVertices();
 }
-
 
 
 int myGame::updateGameState(long time)
@@ -97,74 +100,136 @@ int myGame::updateGameState(long time)
 			++timer;
 		}
 	}
+
 	int rc = 0;
 	// poll the input
 	mInput->poll();
+
+	// If you are not dead
 	if(!dead){
-	// check if escape key was pressed
-	if (mInput->keyboardPressed(DIK_ESCAPE)) {
-		rc = 1;
-	} else {
-		if (mInput->keyboardPressed(DIK_LEFT)) {
-			// move left
-			cam.yaw(-2.0f); // CCW
-			rc = 0;
+		///////////////////////////////////
+		// Collision
+		///////////////////////////////////
+		D3DXVECTOR3 camLoc = cam.getPosition();
+		bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
+		float pitch = sheets.back()->mPitch;
+		if(colliding && pitch > 0){ //if page is falling down and player is not in the 'collision' free hole check collision
+		
+			/*
+			rotation around the x axis
+			y' = y*cos q - z*sin q
+			z' = y*sin q + z*cos q
+			x' = x
+			*/
+			float y = PaperSheet::sharedScaleY;
+			// Rotation
+			float radianPitch = D3DXToRadian(pitch);
+			D3DXVECTOR3 sheetVector = D3DXVECTOR3(0, y*cos(radianPitch), y*sin(radianPitch));
+		
+			/*
+			We use similar triangles to detect collision
+
+				 /|		P = player
+				X |		E = edge of page (page falling clockwise)
+			   /| |		X = Point on the falling page above the player
+			  / | |		S = Spine of the book (The pages rotate around S)
+			 /  | |
+		   S/___P_E
+
+						When X's y coordinate is smaller than the player's a collision occurs
+			*/
+			//switch to a coordinate sytem centered at the spine of the book
+			D3DXVECTOR3 absCamLoc = cam.getPosition();
+			absCamLoc.x = 0; //ignore X
+
+			absCamLoc.z *= -1;
+			absCamLoc.z += y;
+
+			float sheetHeightAtPlayer = sheetVector.y / sheetVector.z * absCamLoc.z;
+			float buffer = 10;
+			colliding = sheetHeightAtPlayer < (camLoc.y + buffer);
+			if(colliding || dead){
+				dead = true;
+				if(cam.position.y > 20){
+					cam.position.y -= 20;	
+				}else {
+					gameStarted = false; //stops the pages from turning
+					//return 0;
+				}
+			
+			}
+
 		}
-		if (mInput->keyboardPressed(DIK_RIGHT)) {
-			// move right
-			cam.yaw(2.0f); // CW
-			rc = 0;
+
+		// check if escape key was pressed
+		if (mInput->keyboardPressed(DIK_ESCAPE)) {
+			rc = 1;
 		}
-		if (mInput->keyboardPressed(DIK_UP)) {
-			// pull up
-			cam.pitch(2.0f);
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_DOWN)) {
-			// dive
-			cam.pitch(-2.0f);
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_W)) {
-			// speed up
-			cam.moveForward(5.0f);
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_S)) {
-			// slow down
-			cam.moveForward(-5.0f);
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_A)) {
-			//move left
-			cam.moveRight(5.0f); 
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_D)) {
-			// move write
-			cam.moveRight(-5.0f); 
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_P)) {
-			// move write
-			cam.setDeveloperMode();
-			rc = 0;
-		}
-		if (mInput->keyboardPressed(DIK_L)) {
-			// Start game early
-			gameStarted = true;
-			cam.position.y = 100;
+		else {
+			if (mInput->keyboardPressed(DIK_LEFT)) {
+				// move left
+				cam.yaw(-2.0f); // CCW
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_RIGHT)) {
+				// move right
+				cam.yaw(2.0f); // CW
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_UP)) {
+				// pull up
+				cam.pitch(2.0f);
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_DOWN)) {
+				// dive
+				cam.pitch(-2.0f);
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_W)) {
+				// speed up
+				cam.moveForward(5.0f);
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_S)) {
+				// slow down
+				cam.moveForward(-5.0f);
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_A)) {
+				//move left
+				cam.moveRight(5.0f); 
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_D)) {
+				// move write
+				cam.moveRight(-5.0f); 
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_P)) {
+				// move write
+				cam.setDeveloperMode();
+				rc = 0;
+			}
+			if (mInput->keyboardPressed(DIK_L)) {
+				// Start game early
+				gameStarted = true;
+				cam.position.y = 100;
+			}
 		}
 	}
-	}else{
+	else{
 		if(mInput->keyboardPressed(DIK_R)){
 			dead = false;
 			gameStarted = true;
 			cam.position.y = 100;
-			levelCount = 1;
+			levelCount = 0;
+			deleteAllPages();
+			createInitialPages();
 		}
 	}
-	if (gameStarted) {
+
+	if (gameStarted && !dead) {
 		std::list<PaperSheet*>::const_iterator iter = sheets.begin();
 		while (iter != sheets.end()) {
 			(*iter)->updateState();
@@ -235,64 +300,9 @@ int myGame::renderFrame(int time)
 		previous->render(time);
 	}
 
-	char text[1024];
-	D3DXVECTOR3 camLoc = cam.getPosition();
-	bool colliding = !sheets.back()->isInHole(camLoc.x, camLoc.z);
-	float pitch = sheets.back()->mPitch;
-	if(colliding && pitch > 0){ //if page is falling down and player is not in the 'collision' free hole check collision
-		
-		/*
-		rotation around the x axis
-		y' = y*cos q - z*sin q
-		z' = y*sin q + z*cos q
-		x' = x
-		*/
-		float y = PaperSheet::sharedScaleY;
-		// Rotation
-		float radianPitch = D3DXToRadian(pitch);
-		D3DXVECTOR3 sheetVector = D3DXVECTOR3(0, y*cos(radianPitch), y*sin(radianPitch));
-		
-		/*
-		We use simmilar triangles to detect collision
-
-		     /|		P = player
-		    X |		E = edge of page (page falling clockwise)
-		   /| |		X = Point on the falling page above the player
-		  / | |		S = Spine of the book (The pages rotate around S)
-		 /  | |
-	   S/___P_E
-
-					When X's y coordinate is smaller than the player's a collision occurs
-		*/
-		//switch to a coordinate sytem centered at the spine of the book
-		D3DXVECTOR3 absCamLoc = cam.getPosition();
-		absCamLoc.x = 0; //ignore X
-
-		absCamLoc.z *= -1;
-		absCamLoc.z += y;
-
-		float sheetHeightAtPlayer = sheetVector.y / sheetVector.z * absCamLoc.z;
-		float buffer = 10;
-		colliding = sheetHeightAtPlayer < (camLoc.y + buffer);
-		if(colliding || dead){
-			dead = true;
-			if(cam.position.y > 20){
-				cam.position.y -= 20;	
-			}else {
-				gameStarted = false; //stops the pages from turning
-				return 0;
-			}
-			
-		}
-
-	}
-	sprintf(text, "Current Location: %d,%d,%d\nColliding? %d\nLevel: %d", 
-			(int)camLoc.x,
-			(int)camLoc.y,
-			(int)camLoc.z,
-			colliding,
-			levelCount);
-	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_VCENTER, D3DCOLOR_ARGB(255, 255, 255, 255));
+	char text[1024];	
+	sprintf(text, "Level: %d", levelCount);
+	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_TOP, D3DCOLOR_XRGB(255, 0, 0));
 
 	md3dDev->EndScene();    // ends the 3D scene
 
@@ -339,6 +349,12 @@ int myGame::initGame(void)
 	PaperSheet::setupVertices();
 	PaperSheet::loadHoles();
 
+	createInitialPages();
+	
+	return 0;
+}
+
+void myGame::createInitialPages() {
 	// Set up floor
 	floor = new PaperSheet(false);
 	floor->setPitch(90.0f);		// have it flat on ground
@@ -351,8 +367,6 @@ int myGame::initGame(void)
 		}
 
 	sheets.back()->startRotating();
-	
-	return 0;
 }
 
 // sets the matrices of the view points and the projection

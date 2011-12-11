@@ -61,6 +61,8 @@ public:
 	Camera cam;	
 	
 private:
+	void createInitialPages();
+	void deleteAllPages();
 	bool gameStarted;
 	bool dead; //if the player has collided with a page it is true
 	std::list<PaperSheet*> sheets;
