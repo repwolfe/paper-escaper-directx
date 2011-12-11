@@ -78,8 +78,13 @@ void myGame::deleteAllPages() {
 	}
 
 	delete previous;
+	previous = NULL;
+
 	delete previous2;
+	previous2 = NULL;
+
 	delete floor;
+	floor = NULL;
 }
 
 
