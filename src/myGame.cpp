@@ -110,8 +110,7 @@ int myGame::updateGameState(long time)
 	// poll the input
 	mInput->poll();
 
-	// If you are not dead
-	if(!dead){
+	
 		///////////////////////////////////
 		// Collision
 		///////////////////////////////////
@@ -165,7 +164,8 @@ int myGame::updateGameState(long time)
 			}
 
 		}
-
+		// If you are not dead
+	if(!dead){
 		// check if escape key was pressed
 		if (mInput->keyboardPressed(DIK_ESCAPE)) {
 			rc = 1;
@@ -227,7 +227,9 @@ int myGame::updateGameState(long time)
 		if(mInput->keyboardPressed(DIK_R)){
 			dead = false;
 			gameStarted = true;
+			cam.position.x = 400;
 			cam.position.y = 100;
+			cam.position.z = 0;
 			levelCount = 0;
 			deleteAllPages();
 			createInitialPages();
@@ -305,8 +307,12 @@ int myGame::renderFrame(int time)
 		previous->render(time);
 	}
 
-	char text[1024];	
-	sprintf(text, "Level: %d", levelCount);
+	char text[1024];
+	if(dead){
+		 sprintf(text, "Level: %d\nPress 'R' to reset", levelCount);
+	}else{
+		sprintf(text, "Level: %d", levelCount);
+	}
 	font->DrawText(NULL, text, -1, &textBox, DT_LEFT | DT_TOP, D3DCOLOR_XRGB(255, 0, 0));
 
 	md3dDev->EndScene();    // ends the 3D scene
